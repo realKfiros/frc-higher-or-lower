@@ -1,66 +1,149 @@
-import Image from "next/image";
-import styles from "./page.module.css";
+"use client";
 
-export default function Home() {
-  return (
-    <div className={styles.page}>
-      <main className={styles.main}>
-        <Image
-          className={styles.logo}
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className={styles.intro}>
-          <h1>To get started, edit the page.tsx file.</h1>
-          <p>
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
-        </div>
-        <div className={styles.ctas}>
-          <a
-            className={styles.primary}
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className={styles.logo}
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className={styles.secondary}
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
-    </div>
-  );
-}
+import {useEffect} from "react";
+import {observer} from "mobx-react-lite";
+import styled from "styled-components";
+import {gameStore} from "@/stores/gameStore";
+import TeamCard from "@/components/TeamCard";
+import Controls from "@/components/Controls";
+
+const Page = styled.main`
+	max-width: 980px;
+	margin: 0 auto;
+	padding: 22px 16px 40px;
+	background: #fafafa;
+	min-height: 100vh;
+`;
+
+const Header = styled.div`
+	display: flex;
+	justify-content: space-between;
+	gap: 12px;
+	align-items: center;
+	margin-bottom: 16px;
+`;
+
+const Title = styled.h1`
+	font-size: 18px;
+	margin: 0;
+`;
+
+const Stats = styled.div`
+	display: flex;
+	gap: 10px;
+	font-size: 13px;
+	opacity: 0.85;
+`;
+
+const Grid = styled.div`
+	display: grid;
+	gap: 12px;
+
+	@media (min-width: 860px) {
+		grid-template-columns: 1fr 1fr;
+		gap: 14px;
+	}
+`;
+
+const Middle = styled.div`
+	margin: 16px 0;
+	display: grid;
+	gap: 10px;
+	justify-items: center;
+`;
+
+const Hint = styled.div`
+	font-size: 13px;
+	opacity: 0.8;
+	text-align: center;
+`;
+
+const FooterRow = styled.div`
+	margin-top: 14px;
+	display: flex;
+	justify-content: center;
+	gap: 10px;
+`;
+
+const SmallBtn = styled.button`
+	border: 1px solid rgba(0, 0, 0, .14);
+	background: white;
+	padding: 9px 12px;
+	border-radius: 12px;
+	cursor: pointer;
+	font-weight: 700;
+
+	&:hover {
+		background: rgba(0, 0, 0, .04);
+	}
+`;
+
+const Badge = styled.span`
+	padding: 6px 10px;
+	border-radius: 999px;
+	border: 1px solid rgba(0, 0, 0, .12);
+	background: white;
+	font-size: 12px;
+	font-weight: 700;
+`;
+
+const GameOver = styled.div`
+	margin-top: 6px;
+	font-size: 13px;
+	font-weight: 700;
+`;
+
+export default observer(function HomePage() {
+	useEffect(() => {
+		gameStore.start();
+	}, []);
+
+	const disabled = gameStore.loading || !gameStore.a || !gameStore.b || gameStore.isGameOver;
+
+	return (
+		<Page>
+			<Header>
+				<Title>Higher / Lower — Blue Banners</Title>
+				<Stats>
+					<Badge>Streak: {gameStore.streak}</Badge>
+					<Badge>Best: {gameStore.best}</Badge>
+				</Stats>
+			</Header>
+
+			<Grid>
+				<TeamCard label="A" team={gameStore.a} hideBanners={false}/>
+				<TeamCard
+					label="B"
+					team={gameStore.b}
+					hideBanners={true}
+					reveal={gameStore.reveal}
+				/>
+			</Grid>
+
+			<Middle>
+				<Controls
+					disabled={disabled}
+					onHigher={() => gameStore.guess("higher")}
+					onLower={() => gameStore.guess("lower")}
+				/>
+
+				<Hint>
+					Guess whether Team B has <b>more</b> or <b>fewer</b> Blue Banners than Team A.
+				</Hint>
+
+				{gameStore.isGameOver ? (
+					<GameOver>Game Over — you reached a streak of {gameStore.streak}.</GameOver>
+				) : null}
+			</Middle>
+
+			<FooterRow>
+				<SmallBtn onClick={() => gameStore.start()}>
+					{gameStore.isGameOver ? "Restart" : "New run"}
+				</SmallBtn>
+				<SmallBtn onClick={() => gameStore.nextRound()} disabled={gameStore.loading}>
+					Skip
+				</SmallBtn>
+			</FooterRow>
+		</Page>
+	);
+});
