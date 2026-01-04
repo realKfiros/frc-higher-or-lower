@@ -1,5 +1,6 @@
 import { makeAutoObservable, runInAction } from "mobx";
 import {Guess, TeamRound} from "@/lib/interfaces/game";
+import {loadBest, saveBest} from "@/lib/localProfile";
 
 export class GameStore {
 	a: TeamRound | null = null;
@@ -14,6 +15,9 @@ export class GameStore {
 
 	constructor() {
 		makeAutoObservable(this);
+		if (typeof window !== "undefined") {
+			this.best = loadBest();
+		}
 	}
 
 	async start() {
@@ -62,6 +66,12 @@ export class GameStore {
 		} else {
 			this.best = Math.max(this.best, this.streak);
 			this.isGameOver = true;
+		}
+	}
+
+	private persistBest() {
+		if (typeof window !== "undefined") {
+			saveBest(this.best);
 		}
 	}
 }

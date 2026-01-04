@@ -6,6 +6,10 @@ import styled from "styled-components";
 import {gameStore} from "@/stores/gameStore";
 import TeamCard from "@/components/TeamCard";
 import Controls from "@/components/Controls";
+import {profileStore} from "@/stores/profileStore";
+import {leaderboardStore} from "@/stores/leaderboardStore";
+import ProfileModal from "@/components/ProfileModal";
+import LeaderboardModal from "@/components/LeaderboardModal";
 
 const Page = styled.main`
 	max-width: 980px;
@@ -108,6 +112,8 @@ export default observer(function HomePage() {
 					<Badge>Streak: {gameStore.streak}</Badge>
 					<Badge>Best: {gameStore.best}</Badge>
 				</Stats>
+				<SmallBtn onClick={() => profileStore.toggle(true)}>Profile</SmallBtn>
+				<SmallBtn onClick={() => leaderboardStore.toggle(true)}>Leaderboard</SmallBtn>
 			</Header>
 
 			<Grid>
@@ -144,6 +150,9 @@ export default observer(function HomePage() {
 					Skip
 				</SmallBtn>
 			</FooterRow>
+
+			<ProfileModal />
+			<LeaderboardModal />
 		</Page>
 	);
 });
