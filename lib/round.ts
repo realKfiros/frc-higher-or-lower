@@ -7,7 +7,7 @@ function pick<T>(arr: T[]) {
 	return arr[Math.floor(Math.random() * arr.length)];
 }
 
-async function getRandomTeamKey(previousBannerCount: number|false = false): Promise<string> {
+async function getRandomTeamKey(previousBannerCount: number = -1): Promise<string> {
 	const page = Math.floor(Math.random() * 25);
 	const teams = await tbaGet<TeamSimple[]>(`/teams/${page}`);
 	const team = pick(teams);
@@ -15,7 +15,7 @@ async function getRandomTeamKey(previousBannerCount: number|false = false): Prom
 		return getRandomTeamKey(previousBannerCount);
 	}
 	const banners = await getTeamBannerCount(team.key);
-	if (previousBannerCount && banners === previousBannerCount) {
+	if (previousBannerCount > -1 && banners === previousBannerCount) {
 		return getRandomTeamKey(previousBannerCount);
 	}
 	if (banners > 0) {
