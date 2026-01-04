@@ -8,9 +8,15 @@ function pick<T>(arr: T[]) {
 }
 
 async function getRandomTeamKey(): Promise<string> {
-	const page = Math.floor(Math.random() * 21);
+	const page = Math.floor(Math.random() * 25);
 	const teams = await tbaGet<TeamSimple[]>(`/teams/${page}/simple`);
 	const team = pick(teams);
+	const banners = await getTeamBannerCount(team.key);
+	const yearsParticipated = await tbaGet<number[]>(`/team/${team.key}/years_participated`);
+	if (yearsParticipated.length < 3 && banners < 1) {
+		return getRandomTeamKey();
+	}
+
 	return team.key;
 }
 

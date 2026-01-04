@@ -10,7 +10,9 @@ const cache = new Map<string, CacheEntry>();
 export async function getTeamBannerCount(teamKey: string): Promise<number> {
 	const now = Date.now();
 	const existing = cache.get(teamKey);
-	if (existing && existing.expiresAt > now) return existing.value;
+	if (existing && existing.expiresAt > now) {
+		return existing.value;
+	}
 
 	const awards = await tbaGet<TbaAward[]>(`/team/${teamKey}/awards`);
 	const banners = awards.reduce(
