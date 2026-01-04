@@ -84,7 +84,7 @@ const SmallBtn = styled.button`
 
 const Badge = styled.span`
 	padding: 6px 10px;
-	border-radius: 999px;
+	border-radius: 12px;
 	border: 1px solid rgba(0, 0, 0, .12);
 	background: white;
 	font-size: 12px;
@@ -108,14 +108,14 @@ export default observer(function HomePage() {
 		<Page>
 			<Header>
 				<Title>Higher / Lower — Blue Banners</Title>
+			</Header>
+			<Header>
 				<Stats>
 					<Badge>Streak: {gameStore.streak}</Badge>
 					<Badge>Best: {gameStore.best}</Badge>
+					<SmallBtn onClick={() => profileStore.toggle(true)}>Profile</SmallBtn>
+					<SmallBtn onClick={() => leaderboardStore.toggle(true)}>Leaderboard</SmallBtn>
 				</Stats>
-			</Header>
-			<Header>
-				<SmallBtn onClick={() => profileStore.toggle(true)}>Profile</SmallBtn>
-				<SmallBtn onClick={() => leaderboardStore.toggle(true)}>Leaderboard</SmallBtn>
 			</Header>
 
 			<Grid>
