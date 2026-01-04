@@ -56,7 +56,7 @@ const Table = styled.div`
 
 const Row = styled.div`
 	display: grid;
-	grid-template-columns: 56px 1fr 100px 140px;
+	grid-template-columns: 30px 30px 56px 56px 56px;
 	gap: 10px;
 	padding: 10px 12px;
 	border-top: 1px solid rgba(0, 0, 0, .08);
@@ -83,7 +83,8 @@ export default observer(function LeaderboardModal() {
 					<div>
 						<div style={{ fontWeight: 800, fontSize: 16 }}>Global Leaderboard</div>
 					</div>
-
+				</TopRow>
+				<TopRow>
 					<BtnRow>
 						<Btn onClick={() => leaderboardStore.submitMyBest()}>Submit my best</Btn>
 						<Btn onClick={() => leaderboardStore.toggle(false)}>Close</Btn>
@@ -93,9 +94,10 @@ export default observer(function LeaderboardModal() {
 				<Table>
 					<Head>
 						<div>#</div>
+						<div></div>
 						<div>Player</div>
 						<div>Score</div>
-						<div>Country / Team</div>
+						<div>Team</div>
 					</Head>
 
 					{leaderboardStore.loading ? (
@@ -104,10 +106,11 @@ export default observer(function LeaderboardModal() {
 						leaderboardStore.rows.map((r, idx) => (
 							<Row key={r.playerId}>
 								<div>{idx + 1}</div>
+								<div>{r.country || "—"}</div>
 								<div style={{ fontWeight: 700 }}>{r.name || "Anonymous"}</div>
 								<div style={{ fontWeight: 800 }}>{r.score}</div>
 								<div style={{ opacity: .85 }}>
-									{(r.country || "—")}{r.favoriteTeam ? ` / #${r.favoriteTeam}` : ""}
+									{r.favoriteTeam || ""}
 								</div>
 							</Row>
 						))
