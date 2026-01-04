@@ -29,7 +29,7 @@ async function getRandomTeamKey(): Promise<string> {
 
 async function getTeamRound(teamKey: string): Promise<TeamRound> {
 	const [team, banners] = await Promise.all([
-		tbaGet<TeamSimple>(`/team/${teamKey}/simple`),
+		tbaGet<TeamSimple>(`/team/${teamKey}`),
 		getTeamBannerCount(teamKey),
 	]);
 
