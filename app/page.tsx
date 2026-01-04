@@ -112,6 +112,8 @@ export default observer(function HomePage() {
 					<Badge>Streak: {gameStore.streak}</Badge>
 					<Badge>Best: {gameStore.best}</Badge>
 				</Stats>
+			</Header>
+			<Header>
 				<SmallBtn onClick={() => profileStore.toggle(true)}>Profile</SmallBtn>
 				<SmallBtn onClick={() => leaderboardStore.toggle(true)}>Leaderboard</SmallBtn>
 			</Header>
