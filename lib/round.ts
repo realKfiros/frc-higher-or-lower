@@ -13,6 +13,10 @@ export async function getRandomTeamKey(previousBannerCount: number = -1): Promis
 	if (!team) {
 		return getRandomTeamKey(previousBannerCount);
 	}
+	let [, teamNumber] = team.key.split("frc");
+	if (parseInt(teamNumber) >= 9970 && parseInt(teamNumber) <= 9999) {
+		return getRandomTeamKey(previousBannerCount);
+	}
 	const banners = await getTeamBannerCount(team.key);
 	if (previousBannerCount > -1 && banners === previousBannerCount) {
 		return getRandomTeamKey(previousBannerCount);
