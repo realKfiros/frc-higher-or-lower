@@ -50,5 +50,5 @@ export async function POST(req: Request) {
 		record = 'global';
 	}
 
-	return NextResponse.json({ ok: true, score, record: true });
+	return NextResponse.json({ ok: true, score, record });
 }
