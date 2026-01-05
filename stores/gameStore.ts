@@ -100,9 +100,7 @@ export class GameStore {
 			runInAction(() => {
 				this.isGameOver = true;
 			});
-			if (this.streak > this.best) {
-				await leaderboardStore.submitMyRun();
-			}
+			await leaderboardStore.submitMyRun();
 			const nextBest = Math.max(this.best, this.streak);
 			if (nextBest !== this.best) {
 				this.best = nextBest; this.persistBest();
