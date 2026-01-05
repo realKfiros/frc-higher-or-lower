@@ -1,3 +1,4 @@
+import {Analytics} from "@vercel/analytics/next"
 import type {Metadata} from "next";
 import {Roboto} from 'next/font/google';
 import StyledComponentsRegistry from "@/styles/registry";
@@ -16,7 +17,10 @@ export default function RootLayout({children}: { children: React.ReactNode }) {
 	return (
 		<html lang="en">
 			<body className={roboto.className}>
-				<StyledComponentsRegistry>{children}</StyledComponentsRegistry>
+				<StyledComponentsRegistry>
+					{children}
+					<Analytics />
+				</StyledComponentsRegistry>
 			</body>
 		</html>
 	);
