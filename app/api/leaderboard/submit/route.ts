@@ -1,5 +1,5 @@
 import {NextResponse} from "next/server";
-import {zadd, setJson} from "@/lib/kv";
+import {zadd, setJson, zscore} from "@/lib/kv";
 import {loadRun} from "@/lib/run";
 import {flag} from "country-emoji";
 
@@ -27,7 +27,12 @@ export async function POST(req: Request) {
 		return NextResponse.json({ ok: false, error: "Run does not belong to player" }, { status: 400 });
 	}
 
+	const currentHighScoreRes = await zscore("lb:banners", playerId);
+	const currentHighScore = currentHighScoreRes.result || 0;
 	const score = run.maxStreak;
+	if (score <= currentHighScore) {
+		return NextResponse.json({ ok: true, score: currentHighScore });
+	}
 
 	const countryFlag = flag((body.country || '').slice(0, 32));
 
