@@ -63,7 +63,7 @@ function formatLocation(t: TeamRound) {
 
 type TeamCardProps = {
 	label: "A" | "B";
-	team: TeamRound | null;
+	team?: TeamRound;
 	hideBanners?: boolean;
 	reveal?: boolean;
 };
