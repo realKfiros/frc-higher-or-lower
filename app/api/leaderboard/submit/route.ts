@@ -1,5 +1,5 @@
 import {NextResponse} from "next/server";
-import {zadd, setJson, zscore} from "@/lib/kv";
+import {zadd, setJson, zscore, zrevrank} from "@/lib/kv";
 import {loadRun} from "@/lib/run";
 import {flag} from "country-emoji";
 
@@ -44,5 +44,11 @@ export async function POST(req: Request) {
 
 	await zadd("lb:banners", score, playerId);
 
-	return NextResponse.json({ ok: true, score });
+	let record = 'personal';
+	const personalRank = await zrevrank("lb:banners", run.playerId);
+	if (personalRank.result === 0) {
+		record = 'global';
+	}
+
+	return NextResponse.json({ ok: true, score, record: true });
 }

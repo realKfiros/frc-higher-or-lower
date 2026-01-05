@@ -2,6 +2,8 @@ import {makeAutoObservable, runInAction} from "mobx";
 import {profileStore} from "@/stores/profileStore";
 import {gameStore} from "@/stores/gameStore";
 import {getOrCreatePlayerId} from "@/lib/localProfile";
+import {confettiStore} from "@/stores/confettiStore";
+import {ConfettiPreset} from "@/lib/interfaces/confetti_shoot";
 
 export type LeaderRow = {
 	playerId: string;
@@ -91,7 +93,7 @@ export class LeaderboardStore {
 
 		if (!gameStore.runId) return; // can't submit a run without a runId
 
-		await fetch("/api/leaderboard/submit", {
+		const submission = await fetch("/api/leaderboard/submit", {
 			method: "POST",
 			headers: { "Content-Type": "application/json" },
 			body: JSON.stringify({
@@ -102,6 +104,13 @@ export class LeaderboardStore {
 				favoriteTeam: p.favoriteTeam ?? null,
 			}),
 		});
+
+		const {record} = (await submission.json()) as {record: string};
+		if (record === 'global') {
+			confettiStore.shoot({preset: ConfettiPreset.Fireworks, text: 'New world record!'});
+		} else if (record === 'personal') {
+			confettiStore.shoot({preset: ConfettiPreset.Pride, text: 'New personal best!'});
+		}
 
 		await this.refresh();
 	}

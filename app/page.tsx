@@ -10,6 +10,7 @@ import {profileStore} from "@/stores/profileStore";
 import {leaderboardStore} from "@/stores/leaderboardStore";
 import ProfileModal from "@/components/ProfileModal";
 import LeaderboardModal from "@/components/LeaderboardModal";
+import {Confetti} from "@/components/Confetti";
 
 const Page = styled.main`
 	max-width: 980px;
@@ -152,6 +153,7 @@ export default observer(function HomePage() {
 
 			<ProfileModal />
 			<LeaderboardModal />
+			<Confetti />
 		</Page>
 	);
 });
