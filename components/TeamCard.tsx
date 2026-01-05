@@ -68,7 +68,7 @@ type TeamCardProps = {
 	reveal?: boolean;
 };
 
-export default function TeamCard({label, team, hideBanners, reveal}: TeamCardProps) {
+export default function TeamCard({label, team, hideBanners = false, reveal}: TeamCardProps) {
 	if (!team) {
 		return (
 			<Card>

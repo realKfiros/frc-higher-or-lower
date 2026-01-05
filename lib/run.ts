@@ -2,6 +2,7 @@ import {tbaGet} from "@/lib/tba";
 import {getTeamBannerCount} from "@/lib/banners";
 import {getJson, setJson} from "@/lib/kv";
 import {getRandomTeamKey, getRound} from "@/lib/round";
+import {TeamRound} from "@/lib/interfaces/game";
 
 type TeamSimple = {
 	key: string;
@@ -14,12 +15,10 @@ type TeamSimple = {
 	rookie_year?: number | null;
 };
 
-export type PublicTeam = TeamSimple;
-
 export type PublicRound = {
 	runId: string;
-	a: PublicTeam & { banners: number };
-	b: PublicTeam & { banners?: number }; // hidden before guess
+	a: TeamRound;
+	b: TeamRound; // hidden before guess
 	streak: number;
 	maxStreak: number;
 };

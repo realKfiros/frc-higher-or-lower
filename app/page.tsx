@@ -119,11 +119,11 @@ export default observer(function HomePage() {
 			</Header>
 
 			<Grid>
-				<TeamCard label="A" team={gameStore.a} hideBanners={false}/>
+				<TeamCard label="A" team={gameStore.a}/>
 				<TeamCard
 					label="B"
 					team={gameStore.b}
-					hideBanners={true}
+					hideBanners
 					reveal={gameStore.reveal}
 				/>
 			</Grid>
@@ -147,9 +147,6 @@ export default observer(function HomePage() {
 			<FooterRow>
 				<SmallBtn onClick={() => gameStore.start()}>
 					{gameStore.isGameOver ? "Restart" : "New run"}
-				</SmallBtn>
-				<SmallBtn onClick={() => gameStore.nextRound()} disabled={gameStore.loading}>
-					Skip
 				</SmallBtn>
 			</FooterRow>
 

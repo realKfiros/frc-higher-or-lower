@@ -1,14 +1,15 @@
 import {makeAutoObservable, runInAction} from "mobx";
 import {loadBest, saveBest, getOrCreatePlayerId} from "@/lib/localProfile";
 import type {PublicRound} from "@/lib/run";
+import {TeamRound} from "@/lib/interfaces/game";
 
 type Guess = "higher" | "lower";
 
 export class GameStore {
-	runId: string | null = null;
+	runId?: string;
 
-	a: PublicRound["a"] | null = null;
-	b: PublicRound["b"] | null = null;
+	a?: TeamRound;
+	b?: TeamRound;
 
 	streak = 0;
 	best = 0;
