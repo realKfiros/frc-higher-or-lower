@@ -24,10 +24,12 @@ export async function GET(req: Request) {
 	const rows = await Promise.all(
 		pairs.map(async (p) => {
 			const profile = await getJson<PlayerProfile>(`player:${p.playerId}`);
+			if (!profile?.name)
+				return false;
 			return {
 				playerId: p.playerId,
 				score: p.score,
-				name: profile?.name || "Anonymous",
+				name: profile?.name,
 				country: profile?.country || "",
 				favoriteTeam: profile?.favoriteTeam ?? null,
 			};
@@ -35,6 +37,9 @@ export async function GET(req: Request) {
 	);
 
 	const filtered = rows.filter((r) => {
+		if (!r) {
+			return false;
+		}
 		if (country && (r.country || "").trim().toLowerCase() !== country) {
 			return false;
 		}
