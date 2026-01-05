@@ -1,10 +1,11 @@
 import {NextResponse} from "next/server";
 import {zadd, setJson} from "@/lib/kv";
-import {flag} from 'country-emoji';
+import {loadRun} from "@/lib/run";
+import {flag} from "country-emoji";
 
 type Body = {
 	playerId: string;
-	best: number;
+	runId: string;
 	name?: string;
 	country?: string;
 	favoriteTeam?: number | null;
@@ -14,11 +15,19 @@ export async function POST(req: Request) {
 	const body = (await req.json()) as Body;
 
 	const playerId = (body.playerId || "").trim();
-	const best = Number(body.best);
+	const runId = (body.runId || "").trim();
 
-	if (!playerId) return NextResponse.json({ ok: false, error: "Missing playerId" }, { status: 400 });
-	if (!Number.isFinite(best) || best < 0 || best > 9999)
-		return NextResponse.json({ ok: false, error: "Invalid best" }, { status: 400 });
+	if (!playerId || !runId) {
+		return NextResponse.json({ ok: false, error: "Missing playerId/runId" }, { status: 400 });
+	}
+
+	const run = await loadRun(runId);
+	if (!run) return NextResponse.json({ ok: false, error: "Run expired" }, { status: 400 });
+	if (run.playerId !== playerId) {
+		return NextResponse.json({ ok: false, error: "Run does not belong to player" }, { status: 400 });
+	}
+
+	const score = run.maxStreak;
 
 	const countryFlag = flag((body.country || '').slice(0, 32));
 
@@ -28,7 +37,7 @@ export async function POST(req: Request) {
 		favoriteTeam: body.favoriteTeam ?? null,
 	});
 
-	await zadd("lb:banners", best, playerId);
+	await zadd("lb:banners", score, playerId);
 
-	return NextResponse.json({ ok: true });
+	return NextResponse.json({ ok: true, score });
 }

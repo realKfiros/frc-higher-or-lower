@@ -1,78 +1,126 @@
-import { makeAutoObservable, runInAction } from "mobx";
-import {Guess, TeamRound} from "@/lib/interfaces/game";
-import {loadBest, saveBest} from "@/lib/localProfile";
+import {makeAutoObservable, runInAction} from "mobx";
+import {loadBest, saveBest, getOrCreatePlayerId} from "@/lib/localProfile";
+import type {PublicRound} from "@/lib/run";
+
+type Guess = "higher" | "lower";
 
 export class GameStore {
-	a: TeamRound | null = null;
-	b: TeamRound | null = null;
+	runId: string | null = null;
+
+	a: PublicRound["a"] | null = null;
+	b: PublicRound["b"] | null = null;
 
 	streak = 0;
 	best = 0;
 
 	reveal = false;
+	revealedBanners: number | null = null;
+
 	isGameOver = false;
 	loading = false;
 
 	constructor() {
 		makeAutoObservable(this);
-		if (typeof window !== "undefined") {
-			this.best = loadBest();
-		}
+		if (typeof window !== "undefined") this.best = loadBest();
+	}
+
+	private persistBest() {
+		if (typeof window !== "undefined") saveBest(this.best);
 	}
 
 	async start() {
-		runInAction(() => {
-			this.streak = 0;
-			this.reveal = false;
-			this.isGameOver = false;
-		});
-		await this.nextRound();
-	}
+		const playerId = getOrCreatePlayerId();
 
-	async nextRound() {
 		runInAction(() => {
 			this.loading = true;
+			this.isGameOver = false;
 			this.reveal = false;
+			this.revealedBanners = null;
+			this.streak = 0;
 		});
 
-		let url = "/api/round";
-		if (this.b) {
-			url += `/${this.b.key}`;
-			this.a = this.b;
-			this.b = null;
+		const res = await fetch("/api/run/start", {
+			method: "POST",
+			headers: { "Content-Type": "application/json" },
+			body: JSON.stringify({ playerId }),
+		});
+		const data = (await res.json()) as { ok: boolean; round?: PublicRound };
+
+		if (!data.ok || !data.round) {
+			runInAction(() => { this.loading = false; });
+			throw new Error("Failed to start run");
 		}
-		const res = await fetch(url, { cache: "no-store" });
-		const data = (await res.json()) as { a: TeamRound; b: TeamRound };
 
 		runInAction(() => {
-			this.a = data.a;
-			this.b = data.b;
+			this.runId = data.round!.runId;
+			this.a = data.round!.a;
+			this.b = data.round!.b;
+			this.streak = data.round!.streak;
 			this.loading = false;
 		});
 	}
 
-	guess(dir: Guess) {
-		if (!this.a || !this.b || this.loading || this.isGameOver) return;
+	async guess(dir: Guess) {
+		if (!this.runId || !this.a || !this.b || this.loading || this.isGameOver) return;
 
-		const correct = dir === "higher" ? this.b.banners >= this.a.banners : this.b.banners <= this.a.banners;
+		const playerId = getOrCreatePlayerId();
 
-		this.reveal = true;
+		runInAction(() => {
+			this.loading = true;
+			this.reveal = false;
+			this.revealedBanners = null;
+		});
 
-		if (correct) {
-			this.streak += 1;
-			this.best = Math.max(this.best, this.streak);
+		const res = await fetch("/api/run/guess", {
+			method: "POST",
+			headers: { "Content-Type": "application/json" },
+			body: JSON.stringify({ runId: this.runId, playerId, dir }),
+		});
 
-			setTimeout(() => this.nextRound(), 850);
-		} else {
-			this.best = Math.max(this.best, this.streak);
-			this.isGameOver = true;
+		const data = (await res.json()) as
+			| { ok: false; error: string }
+			| { ok: true; correct: boolean; revealBanners: number; round: PublicRound };
+
+		if (!("ok" in data) || data.ok === false) {
+			runInAction(() => { this.loading = false; });
+			return;
 		}
-	}
 
-	private persistBest() {
-		if (typeof window !== "undefined") {
-			saveBest(this.best);
+		// reveal
+		runInAction(() => {
+			this.reveal = true;
+			this.revealedBanners = data.revealBanners;
+			this.b = { ...this.b!, banners: data.revealBanners };
+			this.loading = false;
+		});
+
+		if (!data.correct) {
+			runInAction(() => {
+				this.isGameOver = true;
+			});
+			const nextBest = Math.max(this.best, this.streak);
+			if (nextBest !== this.best) {
+				this.best = nextBest; this.persistBest();
+			}
+			return;
 		}
+
+		runInAction(() => {
+			this.streak = data.round.streak;
+			const nextBest = Math.max(this.best, this.streak);
+			if (nextBest !== this.best) {
+				this.best = nextBest; this.persistBest();
+			}
+		});
+
+		setTimeout(() => {
+			runInAction(() => {
+				this.a = data.round.a;
+				this.b = data.round.b;
+				this.reveal = false;
+				this.revealedBanners = null;
+			});
+		}, 850);
 	}
 }
 

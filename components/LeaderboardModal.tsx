@@ -1,8 +1,8 @@
 "use client";
 
-import { observer } from "mobx-react-lite";
+import {observer} from "mobx-react-lite";
 import styled from "styled-components";
-import { leaderboardStore } from "@/stores/leaderboardStore";
+import {leaderboardStore} from "@/stores/leaderboardStore";
 
 const Backdrop = styled.div`
 	position: fixed;
@@ -73,6 +73,44 @@ const Head = styled(Row)`
 	background: rgba(0, 0, 0, .03);
 `;
 
+const Filters = styled.div`
+  margin-top: 12px;
+  display: grid;
+  gap: 10px;
+
+  @media (min-width: 680px) {
+    grid-template-columns: 1fr 1fr auto;
+    align-items: end;
+  }
+`;
+
+const Input = styled.input`
+  border: 1px solid rgba(0,0,0,.14);
+  border-radius: 12px;
+  padding: 10px 12px;
+  font-size: 14px;
+`;
+
+const Label = styled.div`
+  font-size: 12px;
+  opacity: .75;
+  font-weight: 800;
+  margin-bottom: 6px;
+`;
+
+const MyRow = styled.div`
+  margin-top: 12px;
+  border: 1px solid rgba(0,0,0,.12);
+  border-radius: 12px;
+  padding: 10px 12px;
+  background: rgba(0,0,0,.03);
+  font-size: 13px;
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+`;
+
+
 export default observer(function LeaderboardModal() {
 	if (!leaderboardStore.open) return null;
 
@@ -86,10 +124,49 @@ export default observer(function LeaderboardModal() {
 				</TopRow>
 				<TopRow>
 					<BtnRow>
-						<Btn onClick={() => leaderboardStore.submitMyBest()}>Submit my best</Btn>
+						<Btn onClick={() => leaderboardStore.submitMyRun()}>Submit my run</Btn>
 						<Btn onClick={() => leaderboardStore.toggle(false)}>Close</Btn>
 					</BtnRow>
 				</TopRow>
+
+				<Filters>
+					<div>
+						<Label>Filter: Country</Label>
+						<Input
+							value={leaderboardStore.filterCountry}
+							onChange={(e) => leaderboardStore.setCountry(e.target.value)}
+							placeholder="e.g. Israel"
+						/>
+					</div>
+
+					<div>
+						<Label>Filter: Favorite Team #</Label>
+						<Input
+							inputMode="numeric"
+							value={leaderboardStore.filterTeam}
+							onChange={(e) => leaderboardStore.setTeam(e.target.value)}
+							placeholder="e.g. 4744"
+						/>
+					</div>
+
+					<Btn onClick={() => leaderboardStore.refresh()}>Apply</Btn>
+				</Filters>
+
+				{leaderboardStore.me ? (
+					<MyRow>
+						<div style={{ fontWeight: 800 }}>
+							My rank: #{leaderboardStore.me.rank} — {leaderboardStore.me.name}
+						</div>
+						<div style={{ fontWeight: 900 }}>
+							Score: {leaderboardStore.me.score}
+						</div>
+					</MyRow>
+				) : (
+					<MyRow>
+						<div style={{ fontWeight: 800 }}>My rank: —</div>
+						<div style={{ opacity: .8 }}>Submit a run to appear</div>
+					</MyRow>
+				)}
 
 				<Table>
 					<Head>

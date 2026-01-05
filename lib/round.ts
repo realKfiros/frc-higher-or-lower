@@ -1,13 +1,12 @@
 import {getTeamBannerCount} from "@/lib/banners";
 import {TeamSimple} from "@/lib/interfaces/tba";
 import {tbaGet} from "@/lib/tba";
-import {TeamRound} from "@/lib/interfaces/game";
 
 function pick<T>(arr: T[]) {
 	return arr[Math.floor(Math.random() * arr.length)];
 }
 
-async function getRandomTeamKey(previousBannerCount: number = -1): Promise<string> {
+export async function getRandomTeamKey(previousBannerCount: number = -1): Promise<string> {
 	const page = Math.floor(Math.random() * 25);
 	const teams = await tbaGet<TeamSimple[]>(`/teams/${page}`);
 	const team = pick(teams);
@@ -30,23 +29,28 @@ async function getRandomTeamKey(previousBannerCount: number = -1): Promise<strin
 	return team.key;
 }
 
-async function getTeamRound(teamKey: string): Promise<TeamRound> {
-	const [team, banners] = await Promise.all([
-		tbaGet<TeamSimple>(`/team/${teamKey}`),
-		getTeamBannerCount(teamKey),
-	]);
+type Round = {
+	aTeam: TeamSimple;
+	bTeam: TeamSimple;
+	aBanners: number;
+	bBanners: number;
+	keyA: string;
+	keyB: string;
+};
 
-	return { ...team, banners };
-}
-
-export const getRound = async (teamA: string|false = false): Promise<{a: TeamRound, b: TeamRound}> => {
-	if (!teamA)
-		teamA = await getRandomTeamKey();
-	const bannersA = await getTeamBannerCount(teamA);
-	let teamB = await getRandomTeamKey(bannersA);
-	if (teamB === teamA) {
-		return getRound(teamA);
+export const getRound = async (keyA: string|null = null): Promise<Round> => {
+	if (!keyA)
+		keyA = await getRandomTeamKey();
+	const bannersA = await getTeamBannerCount(keyA as string);
+	let keyB = await getRandomTeamKey(bannersA);
+	if (keyB === keyA) {
+		return getRound(keyA);
 	}
-	const [a, b] = await Promise.all([getTeamRound(teamA), getTeamRound(teamB)]);
-	return { a, b };
+	const [aTeam, bTeam, aBanners, bBanners] = await Promise.all([
+		tbaGet<TeamSimple>(`/team/${keyA}`),
+		tbaGet<TeamSimple>(`/team/${keyB}`),
+		getTeamBannerCount(keyA as string),
+		getTeamBannerCount(keyB),
+	]);
+	return { aTeam, bTeam, aBanners, bBanners, keyA, keyB };
 }

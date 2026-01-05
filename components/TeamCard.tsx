@@ -61,17 +61,14 @@ function formatLocation(t: TeamRound) {
 	return parts.length ? parts.join(", ") : "Unknown location";
 }
 
-export default function TeamCard({
-									 label,
-									 team,
-									 hideBanners,
-									 reveal,
-								 }: {
+type TeamCardProps = {
 	label: "A" | "B";
 	team: TeamRound | null;
 	hideBanners?: boolean;
 	reveal?: boolean;
-}) {
+};
+
+export default function TeamCard({label, team, hideBanners, reveal}: TeamCardProps) {
 	if (!team) {
 		return (
 			<Card>
@@ -96,7 +93,7 @@ export default function TeamCard({
 			</Meta>
 
 			<BannerValue $hidden={hideBanners && !reveal}>
-				{team.banners}
+				{team.banners ?? "—"}
 			</BannerValue>
 		</Card>
 	);
