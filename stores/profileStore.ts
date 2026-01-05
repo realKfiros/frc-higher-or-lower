@@ -24,7 +24,7 @@ export class ProfileStore {
 	}
 
 	get displayName() {
-		return this.profile?.name?.trim() || "Anonymous";
+		return this.profile?.name?.trim();
 	}
 }
 

@@ -84,6 +84,8 @@ export class LeaderboardStore {
 	}
 
 	async submitMyRun() {
+		if (!profileStore.displayName)
+			return;
 		const playerId = getOrCreatePlayerId();
 		const p = profileStore.profile ?? { id: playerId };
 

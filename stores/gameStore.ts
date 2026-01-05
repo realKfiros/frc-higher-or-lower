@@ -2,6 +2,7 @@ import {makeAutoObservable, runInAction} from "mobx";
 import {loadBest, saveBest, getOrCreatePlayerId} from "@/lib/localProfile";
 import type {PublicRound} from "@/lib/run";
 import {TeamRound} from "@/lib/interfaces/game";
+import {leaderboardStore} from "@/stores/leaderboardStore";
 
 type Guess = "higher" | "lower";
 
@@ -99,6 +100,9 @@ export class GameStore {
 			runInAction(() => {
 				this.isGameOver = true;
 			});
+			if (this.streak > this.best) {
+				await leaderboardStore.submitMyRun();
+			}
 			const nextBest = Math.max(this.best, this.streak);
 			if (nextBest !== this.best) {
 				this.best = nextBest; this.persistBest();
