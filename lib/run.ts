@@ -35,12 +35,8 @@ type RunState = {
 	updatedAt: number;
 };
 
-function pick<T>(arr: T[]) {
-	return arr[Math.floor(Math.random() * arr.length)];
-}
-
 async function getTeam(teamKey: string): Promise<TeamSimple> {
-	return tbaGet<TeamSimple>(`/team/${teamKey}/simple`);
+	return tbaGet<TeamSimple>(`/team/${teamKey}`);
 }
 
 export async function createRun(playerId: string): Promise<PublicRound> {
