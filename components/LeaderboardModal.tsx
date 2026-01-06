@@ -126,7 +126,6 @@ export default observer(function LeaderboardModal() {
 				</TopRow>
 				<TopRow>
 					<BtnRow>
-						{/*<Btn onClick={() => leaderboardStore.submitMyRun()}>Submit my run</Btn>*/}
 						<Btn onClick={() => leaderboardStore.toggle(false)}>Close</Btn>
 					</BtnRow>
 				</TopRow>

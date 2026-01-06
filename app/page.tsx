@@ -11,27 +11,8 @@ import {leaderboardStore} from "@/stores/leaderboardStore";
 import ProfileModal from "@/components/ProfileModal";
 import LeaderboardModal from "@/components/LeaderboardModal";
 import {Confetti} from "@/components/Confetti";
-
-const Page = styled.main`
-	max-width: 980px;
-	margin: 0 auto;
-	padding: 22px 16px 40px;
-	background: #fafafa;
-	min-height: 100vh;
-`;
-
-const Header = styled.div`
-	display: flex;
-	justify-content: space-between;
-	gap: 12px;
-	align-items: center;
-	margin-bottom: 16px;
-`;
-
-const Title = styled.h1`
-	font-size: 18px;
-	margin: 0;
-`;
+import {Header, Page, Title} from "@/styles/page";
+import Link from "next/dist/client/link";
 
 const Stats = styled.div`
 	display: flex;
@@ -115,7 +96,9 @@ export default observer(function HomePage() {
 					<Badge>Streak: {gameStore.streak}</Badge>
 					<Badge>Best: {gameStore.best}</Badge>
 					<SmallBtn onClick={() => profileStore.toggle(true)}>Profile</SmallBtn>
-					<SmallBtn onClick={() => leaderboardStore.toggle(true)}>Leaderboard</SmallBtn>
+					<Link href="/leaderboard/regular">
+						<SmallBtn>Leaderboard</SmallBtn>
+					</Link>
 				</Stats>
 			</Header>
 

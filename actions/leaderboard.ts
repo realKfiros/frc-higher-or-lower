@@ -1,20 +1,22 @@
-import {NextResponse} from "next/server";
-import {zrevrangeWithScores, getJson} from "@/lib/kv";
-import {flag} from 'country-emoji';
+import {flag} from "country-emoji";
+import {getJson, zrevrangeWithScores} from "@/lib/kv";
+import {PlayerProfile} from "@/lib/localProfile";
+import categories from "@/lib/categories";
+import {LeaderboardRow} from "@/lib/interfaces/leaderboard";
 
-type PlayerProfile = { name?: string; country?: string; favoriteTeam?: number | null };
+export const top = async (category: string, countryStr?: string, teamStr?: string, limitStr: string = '50', scanStr: string = '250'): Promise<Array<LeaderboardRow | false>> => {
+	const c = categories[category];
+	if (!c) {
+		return [];
+	}
 
-export async function GET(req: Request) {
-	const { searchParams } = new URL(req.url);
-
-	const country = flag((searchParams.get("country") || "").trim().toLowerCase());
-	const teamStr = (searchParams.get("team") || "").trim();
+	const country = flag((countryStr || "").trim().toLowerCase());
 	const team = teamStr ? Number(teamStr) : null;
 
-	const limit = Math.min(50, Math.max(5, Number(searchParams.get("limit") || 50)));
-	const scan = Math.min(400, Math.max(limit, Number(searchParams.get("scan") || 200)));
+	const limit = Math.min(50, Math.max(5, Number(limitStr || 50)));
+	const scan = Math.min(400, Math.max(limit, Number(scanStr || 200)));
 
-	const raw = (await zrevrangeWithScores("lb:banners", 0, scan - 1)).result;
+	const raw = (await zrevrangeWithScores(c.leaderboardKey, 0, scan - 1)).result;
 
 	const pairs: Array<{ playerId: string; score: number }> = [];
 	for (let i = 0; i < raw.length; i += 2) {
@@ -46,5 +48,5 @@ export async function GET(req: Request) {
 		return !(team != null && r.favoriteTeam !== team);
 	});
 
-	return NextResponse.json({ rows: filtered.slice(0, limit) });
+	return filtered.slice(0, limit);
 }
