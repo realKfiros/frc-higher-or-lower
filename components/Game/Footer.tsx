@@ -2,6 +2,7 @@
 
 import styled from "styled-components";
 import {useStartGame} from "@/hooks/startGame";
+import {useRouter} from "next/navigation";
 
 type FooterProps = {
 	category: string;
@@ -36,10 +37,15 @@ const SmallBtn = styled.button`
 
 export const Footer = ({category, isGameOver}: FooterProps) => {
 	const resetGame = useStartGame();
+	const router = useRouter();
+
 	return (
 		<FooterRow>
 			<SmallBtn onClick={() => resetGame(category)}>
 				{isGameOver ? "Restart" : "New run"}
+			</SmallBtn>
+			<SmallBtn onClick={() => router.push('/')}>
+				Select different category
 			</SmallBtn>
 		</FooterRow>
 	)
