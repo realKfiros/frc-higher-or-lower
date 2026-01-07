@@ -1,6 +1,8 @@
 import {NextResponse} from "next/server";
-import {zrevrangeWithScores, getJson} from "@/lib/kv";
+import {kv} from "@/lib/kv";
 import {flag} from 'country-emoji';
+
+const {zrevrangeWithScores, getJson} = kv;
 
 type PlayerProfile = { name?: string; country?: string; favoriteTeam?: number | null };
 

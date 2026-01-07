@@ -1,5 +1,7 @@
 import {NextResponse} from "next/server";
-import {zrevrank, zscore, getJson} from "@/lib/kv";
+import {kv} from "@/lib/kv";
+
+const {zrevrank, zscore, getJson} = kv;
 
 type PlayerProfile = { name?: string; country?: string; favoriteTeam?: number | null };
 

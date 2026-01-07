@@ -2,7 +2,6 @@
 
 import styled from "styled-components";
 import {usePathname, useRouter, useSearchParams} from "next/navigation";
-import {leaderboardStore} from "@/stores/leaderboardStore";
 import {useDebouncedCallback} from "use-debounce";
 
 const Container = styled.div`

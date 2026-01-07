@@ -2,6 +2,7 @@ import {Analytics} from "@vercel/analytics/next"
 import type {Metadata} from "next";
 import {Roboto} from 'next/font/google';
 import StyledComponentsRegistry from "@/styles/registry";
+import {Confetti} from "@/components/Confetti";
 
 export const metadata: Metadata = {
 	title: "FRC Banners | Higher or Lower",
@@ -20,6 +21,7 @@ export default function RootLayout({children}: { children: React.ReactNode }) {
 				<StyledComponentsRegistry>
 					{children}
 					<Analytics />
+					<Confetti />
 				</StyledComponentsRegistry>
 			</body>
 		</html>

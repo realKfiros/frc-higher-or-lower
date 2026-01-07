@@ -1,8 +1,14 @@
 import {tbaGet} from "@/lib/tba";
 import {getTeamBannerCount} from "@/lib/banners";
-import {getJson, setJson} from "@/lib/kv";
-import {getRandomTeamKey, getRound} from "@/lib/round";
+import {kv} from "@/lib/kv";
+import {getRound} from "@/lib/round";
 import {TeamRound} from "@/lib/interfaces/game";
+import categories from "@/lib/categories";
+import {RunRecord, RunState} from "@/lib/interfaces/run";
+import {getRandomTeamKey} from "@/lib/teams";
+import {submitRun} from "@/actions/leaderboard";
+
+const {getJson, setJson} = kv;
 
 type TeamSimple = {
 	key: string;
@@ -23,29 +29,18 @@ export type PublicRound = {
 	maxStreak: number;
 };
 
-type RunState = {
-	runId: string;
-	playerId: string;
-	streak: number;
-	maxStreak: number;
-	aKey: string;
-	bKey: string;
-	aBanners: number;
-	bBanners: number;
-	updatedAt: number;
-};
-
 async function getTeam(teamKey: string): Promise<TeamSimple> {
 	return tbaGet<TeamSimple>(`/team/${teamKey}`);
 }
 
-export async function createRun(playerId: string): Promise<PublicRound> {
+export async function createRun(category: string, playerId: string): Promise<PublicRound> {
 	const runId =
 		typeof crypto !== "undefined" && "randomUUID" in crypto
 			? crypto.randomUUID()
 			: `${Date.now()}-${Math.random().toString(16).slice(2)}`;
 
-	const { aTeam, bTeam, aBanners, bBanners, keyA, keyB } = await getRound();
+	const keyA = getRandomTeamKey(category);
+	const { aTeam, bTeam, aBanners, bBanners, keyB } = await getRound(category, keyA);
 
 	const state: RunState = {
 		runId,
@@ -56,6 +51,8 @@ export async function createRun(playerId: string): Promise<PublicRound> {
 		bKey: keyB,
 		aBanners,
 		bBanners,
+		category,
+		isGameOver: false,
 		updatedAt: Date.now(),
 	};
 
@@ -82,11 +79,14 @@ export async function loadRun(runId: string): Promise<RunState | null> {
 	return state;
 }
 
-export async function guessRun(
-	runId: string,
-	playerId: string,
-	dir: "higher" | "lower"
-): Promise<{ correct: boolean; revealBanners: number; round: PublicRound }> {
+type GuessResult = {
+	correct: boolean;
+	revealBanners: number;
+	round: PublicRound;
+	record?: RunRecord;
+};
+
+export async function guessRun(runId: string, playerId: string, dir: "higher" | "lower"): Promise<GuessResult> {
 	const state = await loadRun(runId);
 	if (!state) {
 		throw new Error("Run not found/expired");
@@ -95,8 +95,7 @@ export async function guessRun(
 		throw new Error("Run does not belong to player");
 	}
 
-	const correct =
-		dir === "higher" ? state.bBanners >= state.aBanners : state.bBanners <= state.aBanners;
+	const correct = dir === "higher" ? state.bBanners >= state.aBanners : state.bBanners <= state.aBanners;
 
 	const revealBanners = state.bBanners;
 
@@ -108,7 +107,8 @@ export async function guessRun(
 			streak: state.streak,
 			maxStreak: state.maxStreak,
 		};
-		return { correct, revealBanners, round };
+		const record = await submitRun(state.playerId, state.category, state.streak);
+		return { correct, revealBanners, round, record };
 	}
 
 	// correct: b becomes a and we get a new b
@@ -118,15 +118,15 @@ export async function guessRun(
 	const nextAKey = state.bKey;
 
 	const nextATeam = await getTeam(nextAKey);
-	const nextABanners = await getTeamBannerCount(nextAKey);
+	const nextABanners = getTeamBannerCount(state.category, nextAKey);
 
 	const { bTeam, bBanners, keyB } = await (async () => {
 		// new opponent
-		let newB = await getRandomTeamKey(nextABanners);
+		let newB = getRandomTeamKey(state.category, nextABanners);
 		while (newB === nextAKey) {
-			newB = await getRandomTeamKey(nextABanners);
+			newB = getRandomTeamKey(state.category, nextABanners);
 		}
-		const [t, c] = await Promise.all([getTeam(newB), getTeamBannerCount(newB)]);
+		const [t, c] = await Promise.all([getTeam(newB), getTeamBannerCount(state.category, newB)]);
 		return { bTeam: t, bBanners: c, keyB: newB };
 	})();
 

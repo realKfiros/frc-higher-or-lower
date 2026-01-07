@@ -2,6 +2,12 @@
 
 import styled from "styled-components";
 
+type ControlsProps = {
+	onHigher: () => void;
+	onLower: () => void;
+	disabled?: boolean;
+};
+
 const Row = styled.div`
   display: flex;
   gap: 10px;
@@ -27,15 +33,7 @@ const Button = styled.button`
   }
 `;
 
-export default function Controls({
-									 onHigher,
-									 onLower,
-									 disabled,
-								 }: {
-	onHigher: () => void;
-	onLower: () => void;
-	disabled?: boolean;
-}) {
+export default function Controls({onHigher, onLower, disabled,}: ControlsProps) {
 	return (
 		<Row>
 			<Button onClick={onLower} disabled={disabled}>

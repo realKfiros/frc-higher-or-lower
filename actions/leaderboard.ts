@@ -1,8 +1,11 @@
 import {flag} from "country-emoji";
-import {getJson, zrevrangeWithScores} from "@/lib/kv";
+import {kv} from "@/lib/kv";
 import {PlayerProfile} from "@/lib/localProfile";
 import categories from "@/lib/categories";
 import {LeaderboardRow} from "@/lib/interfaces/leaderboard";
+import {RunRecord} from "@/lib/interfaces/run";
+
+const {getJson, zrevrangeWithScores} = kv;
 
 export const top = async (category: string, countryStr?: string, teamStr?: string, limitStr: string = '50', scanStr: string = '250'): Promise<Array<LeaderboardRow | false>> => {
 	const c = categories[category];
@@ -49,4 +52,26 @@ export const top = async (category: string, countryStr?: string, teamStr?: strin
 	});
 
 	return filtered.slice(0, limit);
+};
+
+export const submitRun = async (playerId: string, category: string, score: number): Promise<RunRecord> => {
+	const c = categories[category];
+	if (!c) {
+		throw new Error("Invalid category");
+	}
+
+	const currentHighScoreRes = await kv.zscore(c.leaderboardKey, playerId);
+	const currentHighScore = currentHighScoreRes.result || 0;
+	if (score <= currentHighScore) {
+		return 'none';
+	}
+
+	await kv.zadd(c.leaderboardKey, score, playerId);
+
+	const personalRank = await kv.zrevrank(c.leaderboardKey, playerId);
+	if (personalRank.result === 0) {
+		return 'global';
+	}
+
+	return 'personal';
 }

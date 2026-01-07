@@ -1,4 +1,4 @@
-import { makeAutoObservable, runInAction } from "mobx";
+import { makeAutoObservable } from "mobx";
 import { loadProfile, saveProfile, type PlayerProfile } from "@/lib/localProfile";
 
 export class ProfileStore {

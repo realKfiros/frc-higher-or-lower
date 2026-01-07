@@ -1,5 +1,4 @@
 type UpstashRes<T> = { result: T };
-type UpstageArrayRes = UpstashRes<Array<string | number>>;
 
 async function upstash<T>(path: string, init?: RequestInit): Promise<UpstashRes<T>> {
 	const url = process.env.UPSTASH_REDIS_REST_URL!;

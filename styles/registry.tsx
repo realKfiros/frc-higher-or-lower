@@ -4,11 +4,11 @@ import React, { useState } from "react";
 import { useServerInsertedHTML } from "next/navigation";
 import { ServerStyleSheet, StyleSheetManager } from "styled-components";
 
-export default function StyledComponentsRegistry({
-													 children,
-												 }: {
+type StyledComponentsRegistryProps = {
 	children: React.ReactNode;
-}) {
+};
+
+export default function StyledComponentsRegistry({children,}: StyledComponentsRegistryProps) {
 	const [styledComponentsStyleSheet] = useState(() => new ServerStyleSheet());
 
 	useServerInsertedHTML(() => {

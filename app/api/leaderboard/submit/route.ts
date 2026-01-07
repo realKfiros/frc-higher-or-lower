@@ -1,7 +1,9 @@
 import {NextResponse} from "next/server";
-import {zadd, setJson, zscore, zrevrank} from "@/lib/kv";
+import {kv} from "@/lib/kv";
 import {loadRun} from "@/lib/run";
 import {flag} from "country-emoji";
+
+const {zadd, setJson, zscore, zrevrank} = kv;
 
 type Body = {
 	playerId: string;

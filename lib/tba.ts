@@ -1,6 +1,6 @@
 export const TBA_BASE = "https://www.thebluealliance.com/api/v3";
 
-export async function tbaGet<T>(path: string): Promise<T> {
+export async function tbaGet<T>(path: string, returnOnError?: T): Promise<T> {
 	const key = process.env.TBA_AUTH_KEY;
 	if (!key) {
 		throw new Error("Missing TBA_AUTH_KEY env var");
@@ -14,7 +14,13 @@ export async function tbaGet<T>(path: string): Promise<T> {
 		next: { revalidate: 60 * 60 * 24 },
 	});
 
-	if (!res.ok) throw new Error(`TBA ${res.status} for ${path}`);
+	if (!res.ok)
+	{
+		if (returnOnError !== undefined) {
+			return returnOnError;
+		}
+		throw new Error(`TBA ${res.status} for ${path}`);
+	}
 
 	return (await res.json()) as T;
 }

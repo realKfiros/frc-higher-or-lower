@@ -1,10 +1,3 @@
-export type TbaAward = {
-	name: string;
-	year: number;
-	event_key: string;
-	award_type: number;
-};
-
 export type TeamSimple = {
 	key: string; // "frc254"
 	team_number: number;
