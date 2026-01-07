@@ -3,10 +3,23 @@
 import {Header, Page, Title} from "@/styles/page";
 import categories from "@/lib/categories";
 import styled from "styled-components";
-import ProfileModal from "@/components/ProfileModal";
 import {useStartGame} from "@/hooks/startGame";
 import {observer} from "mobx-react-lite";
 import {LoadingBoundary} from "@/components/LoadingBoundary";
+import {profileStore} from "@/stores/profileStore";
+
+const SmallBtn = styled.button`
+	border: 1px solid rgba(0, 0, 0, .14);
+	background: white;
+	padding: 9px 12px;
+	border-radius: 12px;
+	cursor: pointer;
+	font-weight: 700;
+
+	&:hover {
+		background: rgba(0, 0, 0, .04);
+	}
+`;
 
 const CategoryButton = styled.div`
 	margin: 8px auto;
@@ -33,6 +46,7 @@ export default observer(function MainPage() {
 					<Title>
 						Higher / Lower — Blue Banners
 					</Title>
+					<SmallBtn onClick={() => profileStore.toggle(true)}>Profile</SmallBtn>
 				</Header>
 				<p>Create new game:</p>
 				{Object.entries(categories).map(([categoryId, category]) => (
@@ -40,7 +54,6 @@ export default observer(function MainPage() {
 						{category.title}
 					</CategoryButton>
 				))}
-				<ProfileModal />
 			</Page>
 		</LoadingBoundary>
 	);

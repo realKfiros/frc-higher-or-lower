@@ -20,11 +20,7 @@ export class ProfileStore {
 		if (!this.profile) return;
 		const next = { ...this.profile, ...patch };
 		this.profile = next;
-		if (typeof window !== "undefined") saveProfile(next);
-	}
-
-	get displayName() {
-		return this.profile?.name?.trim();
+		saveProfile(next);
 	}
 }
 

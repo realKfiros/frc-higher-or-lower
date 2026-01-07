@@ -38,16 +38,13 @@ export function loadProfile(): PlayerProfile {
 	return {id: getOrCreatePlayerId()};
 }
 
-export function saveProfile(profile: PlayerProfile) {
-	localStorage.setItem(PROFILE_KEY, JSON.stringify(profile));
-}
-
-export function loadBest(): number {
-	const raw = localStorage.getItem(BEST_KEY);
-	const n = raw ? Number(raw) : 0;
-	return Number.isFinite(n) ? n : 0;
-}
-
-export function saveBest(best: number) {
-	localStorage.setItem(BEST_KEY, String(best));
+export async function saveProfile(profile: PlayerProfile) {
+	await fetch("/api/profile/save", {
+		method: "POST",
+		headers: { "Content-Type": "application/json" },
+		body: JSON.stringify(profile),
+	});
+	if (typeof window !== "undefined") {
+		localStorage.setItem(PROFILE_KEY, JSON.stringify(profile));
+	}
 }

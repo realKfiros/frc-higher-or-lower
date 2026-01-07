@@ -3,7 +3,7 @@
 import {TeamRound} from "@/lib/interfaces/game";
 import styled from "styled-components";
 import TeamCard from "@/components/TeamCard";
-import {useMemo, useState} from "react";
+import {useEffect, useMemo, useState} from "react";
 import Controls from "@/components/Controls";
 import {getOrCreatePlayerId} from "@/lib/localProfile";
 import type {PublicRound} from "@/lib/run";
@@ -17,7 +17,6 @@ type GuessProps = {
 	b: TeamRound;
 	isGameOver: boolean;
 	streak: number;
-	category: string;
 	runId: string;
 };
 
@@ -57,26 +56,18 @@ const GameOver = styled.div`
 	font-weight: 700;
 `;
 
-const SmallBtn = styled.button`
-	border: 1px solid rgba(0, 0, 0, .14);
-	background: white;
-	padding: 9px 12px;
-	border-radius: 12px;
-	cursor: pointer;
-	font-weight: 700;
-
-	&:hover {
-		background: rgba(0, 0, 0, .04);
-	}
-`;
-
-export const Guess = ({a, b, isGameOver, streak, category, runId}: GuessProps) => {
+export const Guess = ({a, b, isGameOver, streak, runId}: GuessProps) => {
 	const [reveal, setReveal] = useState(false);
 	const [loading, setLoading] = useState(false);
 	const [teamA, setTeamA] = useState<TeamRound>(a);
 	const [teamB, setTeamB] = useState<TeamRound>(b);
 	const [gameOver, setGameOver] = useState(isGameOver);
-	const playerId = useMemo(getOrCreatePlayerId, []);
+	const [playerId, setPlayerId] = useState<string>();
+
+	useEffect(() =>
+	{
+		setPlayerId(getOrCreatePlayerId);
+	}, []);
 
 	const guess = async (dir: "higher" | "lower") => {
 		setLoading(true);

@@ -3,6 +3,7 @@ import type {Metadata} from "next";
 import {Roboto} from 'next/font/google';
 import StyledComponentsRegistry from "@/styles/registry";
 import {Confetti} from "@/components/Confetti";
+import ProfileModal from "@/components/ProfileModal";
 
 export const metadata: Metadata = {
 	title: "FRC Banners | Higher or Lower",
@@ -22,6 +23,7 @@ export default function RootLayout({children}: { children: React.ReactNode }) {
 					{children}
 					<Analytics />
 					<Confetti />
+					<ProfileModal />
 				</StyledComponentsRegistry>
 			</body>
 		</html>

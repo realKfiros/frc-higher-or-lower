@@ -16,8 +16,8 @@ export const top = async (category: string, countryStr?: string, teamStr?: strin
 	const country = flag((countryStr || "").trim().toLowerCase());
 	const team = teamStr ? Number(teamStr) : null;
 
-	const limit = Math.min(50, Math.max(5, Number(limitStr || 50)));
-	const scan = Math.min(400, Math.max(limit, Number(scanStr || 200)));
+	const limit = Math.min(50, Math.max(5, Number(limitStr)));
+	const scan = Math.min(400, Math.max(limit, Number(scanStr)));
 
 	const raw = (await zrevrangeWithScores(c.leaderboardKey, 0, scan - 1)).result;
 
@@ -65,6 +65,8 @@ export const submitRun = async (playerId: string, category: string, score: numbe
 	if (score <= currentHighScore) {
 		return 'none';
 	}
+
+	console.log(`New high score for player ${playerId} in category ${category}: ${score} (old: ${currentHighScore})`);
 
 	await kv.zadd(c.leaderboardKey, score, playerId);
 

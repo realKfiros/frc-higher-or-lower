@@ -46,7 +46,6 @@ export const Stats = ({streak, maxStreak, category}: StatsProps) => {
 			<Container>
 				<Badge>Streak: {streak}</Badge>
 				<Badge>Best: {maxStreak}</Badge>
-				<SmallBtn onClick={() => profileStore.toggle(true)}>Profile</SmallBtn>
 				<Link href={"/leaderboard/" + category}>
 					<SmallBtn>Leaderboard</SmallBtn>
 				</Link>

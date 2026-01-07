@@ -8,13 +8,11 @@ class ConfettiStore {
 	options?: TCanvasConfettiAnimationOptions;
 	text: string = '';
 
-	constructor()
-	{
+	constructor() {
 		makeAutoObservable(this);
 	}
 
-	shoot({preset, text, options}: ConfettiShoot)
-	{
+	shoot({preset, text, options}: ConfettiShoot) {
 		this.type = preset;
 		this.text = text || '';
 		this.options = options;
