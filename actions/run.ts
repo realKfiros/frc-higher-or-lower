@@ -23,11 +23,13 @@ export const createRun = async (playerId: string, category: string) => {
 
 	const { aBanners, bBanners, keyB } = await getRound(category, keyA);
 
+	const maxStreak = await kv.zscore(c.leaderboardKey, playerId);
+
 	const state: RunState = {
 		runId,
 		playerId,
 		streak: 0,
-		maxStreak: 0,
+		maxStreak: maxStreak.result ?? 0,
 		aKey: keyA,
 		bKey: keyB,
 		aBanners,

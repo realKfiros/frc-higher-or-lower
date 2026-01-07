@@ -3,7 +3,7 @@
 import {TeamRound} from "@/lib/interfaces/game";
 import styled from "styled-components";
 import TeamCard from "@/components/TeamCard";
-import {useEffect, useMemo, useState} from "react";
+import {useEffect, useState} from "react";
 import Controls from "@/components/Controls";
 import {getOrCreatePlayerId} from "@/lib/localProfile";
 import type {PublicRound} from "@/lib/run";
@@ -11,12 +11,15 @@ import {Spinner} from "@/components/Spinner";
 import {RunRecord} from "@/lib/interfaces/run";
 import {confettiStore} from "@/stores/confettiStore";
 import {ConfettiPreset} from "@/lib/interfaces/confetti_shoot";
+import {Stats} from "@/components/Game/Stats";
 
 type GuessProps = {
 	a: TeamRound;
 	b: TeamRound;
 	isGameOver: boolean;
 	streak: number;
+	maxStreak: number;
+	category: string;
 	runId: string;
 };
 
@@ -43,26 +46,21 @@ const Hint = styled.div`
 	text-align: center;
 `;
 
-const FooterRow = styled.div`
-	margin-top: 14px;
-	display: flex;
-	justify-content: center;
-	gap: 10px;
-`;
-
 const GameOver = styled.div`
 	margin-top: 6px;
 	font-size: 13px;
 	font-weight: 700;
 `;
 
-export const Guess = ({a, b, isGameOver, streak, runId}: GuessProps) => {
+export const Guess = ({a, b, isGameOver, streak, maxStreak, category, runId}: GuessProps) => {
 	const [reveal, setReveal] = useState(false);
 	const [loading, setLoading] = useState(false);
 	const [teamA, setTeamA] = useState<TeamRound>(a);
 	const [teamB, setTeamB] = useState<TeamRound>(b);
 	const [gameOver, setGameOver] = useState(isGameOver);
 	const [playerId, setPlayerId] = useState<string>();
+	const [currentStreak, setCurrentStreak] = useState(streak);
+	const [currentMaxStreak, setCurrentMaxStreak] = useState(maxStreak);
 
 	useEffect(() =>
 	{
@@ -74,7 +72,7 @@ export const Guess = ({a, b, isGameOver, streak, runId}: GuessProps) => {
 		const res = await fetch("/api/run/guess", {
 			method: "POST",
 			headers: { "Content-Type": "application/json" },
-			body: JSON.stringify({ runId: runId, playerId, dir }),
+			body: JSON.stringify({ runId, playerId, dir }),
 		});
 		const data = (await res.json()) as
 			| { ok: false; error: string }
@@ -102,6 +100,9 @@ export const Guess = ({a, b, isGameOver, streak, runId}: GuessProps) => {
 			return;
 		}
 
+		setCurrentStreak(data.round.streak);
+		setCurrentMaxStreak(data.round.maxStreak);
+
 		setTimeout(() => {
 			// load next round
 			setTeamA(data.round.a);
@@ -115,6 +116,7 @@ export const Guess = ({a, b, isGameOver, streak, runId}: GuessProps) => {
 	}
 
 	return <>
+		<Stats streak={currentStreak} maxStreak={currentMaxStreak} category={category} />
 		<Grid>
 			<TeamCard label="A" team={teamA}/>
 			<TeamCard

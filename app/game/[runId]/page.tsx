@@ -1,7 +1,6 @@
 import {Header, Page, Title} from "@/styles/page";
 import {loadRun} from "@/actions/run";
 import categories from "@/lib/categories";
-import {Stats} from "@/components/Game/Stats";
 import {Guess} from "@/components/Game/Guess";
 import {Footer} from "@/components/Game/Footer";
 
@@ -26,7 +25,6 @@ export default async function GamePage({params}: GamePageProps) {
 		<Header>
 			<Title>Game - {category.title}</Title>
 		</Header>
-		<Stats {...run} />
 		<Guess {...run} />
 		<Footer {...run} />
 	</Page>;
