@@ -95,7 +95,7 @@ export const Guess = ({a, b, isGameOver, streak, runId}: GuessProps) => {
 		if (!data.correct) {
 			setGameOver(true);
 			if (data.record === 'global') {
-				confettiStore.shoot({preset: ConfettiPreset.Fireworks, text: 'New world record!'});
+				confettiStore.shoot({preset: ConfettiPreset.Crossfire, text: 'New world record!'});
 			} else if (data.record === 'personal') {
 				confettiStore.shoot({preset: ConfettiPreset.Pride, text: 'New personal best!'});
 			}
