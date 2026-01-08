@@ -53,7 +53,7 @@ const GameOver = styled.div`
 `;
 
 export const Guess = ({a, b, isGameOver, streak, maxStreak, category, runId}: GuessProps) => {
-	const [reveal, setReveal] = useState(false);
+	const [reveal, setReveal] = useState(isGameOver);
 	const [loading, setLoading] = useState(false);
 	const [teamA, setTeamA] = useState<TeamRound>(a);
 	const [teamB, setTeamB] = useState<TeamRound>(b);
@@ -62,8 +62,7 @@ export const Guess = ({a, b, isGameOver, streak, maxStreak, category, runId}: Gu
 	const [currentStreak, setCurrentStreak] = useState(streak);
 	const [currentMaxStreak, setCurrentMaxStreak] = useState(maxStreak);
 
-	useEffect(() =>
-	{
+	useEffect(() => {
 		setPlayerId(getOrCreatePlayerId);
 	}, []);
 
@@ -138,7 +137,7 @@ export const Guess = ({a, b, isGameOver, streak, maxStreak, category, runId}: Gu
 			</Hint>
 
 			{gameOver ? (
-				<GameOver>Game Over — you reached a streak of {streak}.</GameOver>
+				<GameOver>Game Over — you reached a streak of {currentStreak}.</GameOver>
 			) : null}
 		</Middle>
 	</>;

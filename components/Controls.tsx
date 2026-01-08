@@ -33,7 +33,7 @@ const Button = styled.button`
   }
 `;
 
-export default function Controls({onHigher, onLower, disabled,}: ControlsProps) {
+export default function Controls({onHigher, onLower, disabled}: ControlsProps) {
 	return (
 		<Row>
 			<Button onClick={onLower} disabled={disabled}>

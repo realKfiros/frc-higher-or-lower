@@ -107,6 +107,11 @@ export async function guessRun(runId: string, playerId: string, dir: "higher" | 
 			streak: state.streak,
 			maxStreak: state.maxStreak,
 		};
+		await setJson(`run:${runId}`, {
+			...state,
+			isGameOver: true,
+			updatedAt: Date.now(),
+		});
 		const record = await submitRun(state.playerId, state.category, state.streak);
 		return { correct, revealBanners, round, record };
 	}

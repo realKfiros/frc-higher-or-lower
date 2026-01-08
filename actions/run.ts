@@ -53,10 +53,15 @@ export const loadRun = async (runId: string) => {
 	const aTeam = await tbaGet<TeamSimple>(`/team/${state.aKey}`);
 	const bTeam = await tbaGet<TeamSimple>(`/team/${state.bKey}`);
 
+	let bBanners = undefined; // without banners, unless game over
+	if (state.isGameOver) {
+		bBanners = state.bBanners;
+	}
+
 	return {
 		runId,
 		a: { ...aTeam, banners: state.aBanners },
-		b: { ...bTeam }, // without banners
+		b: { ...bTeam, banners: bBanners },
 		streak: state.streak,
 		maxStreak: state.maxStreak,
 		category: state.category,
