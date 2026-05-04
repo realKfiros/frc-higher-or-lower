@@ -4,6 +4,7 @@ import { loadProfile, saveProfile, type PlayerProfile } from "@/lib/localProfile
 export class ProfileStore {
 	profile: PlayerProfile | null = null;
 	open = false;
+	recordOpened = false;
 
 	constructor() {
 		makeAutoObservable(this);
@@ -12,12 +13,15 @@ export class ProfileStore {
 		}
 	}
 
-	toggle(open: boolean) {
+	toggle(open: boolean, recordOpen: boolean = false) {
 		this.open = open;
+		this.recordOpened = open && recordOpen;
 	}
 
 	update(patch: Partial<PlayerProfile>) {
-		if (!this.profile) return;
+		if (!this.profile) {
+			return;
+		}
 		const next = { ...this.profile, ...patch };
 		this.profile = next;
 		saveProfile(next);

@@ -12,6 +12,7 @@ import {RunRecord} from "@/lib/interfaces/run";
 import {confettiStore} from "@/stores/confettiStore";
 import {ConfettiPreset} from "@/lib/interfaces/confetti_shoot";
 import {Stats} from "@/components/Game/Stats";
+import {profileStore} from "@/stores/profileStore";
 
 type GuessProps = {
 	a: TeamRound;
@@ -94,6 +95,7 @@ export const Guess = ({a, b, isGameOver, streak, maxStreak, category, arg, runId
 			setGameOver(true);
 			if (data.record === 'global') {
 				confettiStore.shoot({preset: ConfettiPreset.Crossfire, text: 'New world record!'});
+				setTimeout(() => profileStore.toggle(true, true), 3000);
 			} else if (data.record === 'personal') {
 				confettiStore.shoot({preset: ConfettiPreset.Pride, text: 'New personal best!'});
 			}

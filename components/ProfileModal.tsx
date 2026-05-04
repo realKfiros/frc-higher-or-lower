@@ -58,16 +58,25 @@ const Btn = styled.button`
   &:hover { background: rgba(0,0,0,.04); }
 `;
 
-export default observer(function ProfileModal() {
-	if (!profileStore.open) return null;
+export const ProfileModal = observer(function ProfileModal() {
+	const {open, recordOpened} = profileStore;
+
+	if (!open) {
+		return null;
+	}
 
 	const p = profileStore.profile!;
 	return (
 		<Backdrop onClick={() => profileStore.toggle(false)}>
 			<Modal onClick={(e) => e.stopPropagation()}>
-				<div style={{ fontWeight: 800, fontSize: 16 }}>Player Profile (optional)</div>
+				{recordOpened && (
+					<div style={{ fontWeight: 800, fontSize: 18, marginBottom: 10 }}>
+						You've got a new record! Add your details if you want to be shown in the leaderboard (or verify your existing details)
+					</div>
+				)}
+				<div style={{ fontWeight: 800, fontSize: 16 }}>Player Profile</div>
 				<div style={{ marginTop: 6, fontSize: 13, opacity: .8 }}>
-					Used for leaderboard display. No password. Stored locally.
+					Used for leaderboard display only - fill a name to be displayed. No password required, and all the fields are optional.
 				</div>
 
 				<Row>
