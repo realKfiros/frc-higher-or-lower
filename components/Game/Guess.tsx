@@ -20,6 +20,7 @@ type GuessProps = {
 	streak: number;
 	maxStreak: number;
 	category: string;
+	arg?: string;
 	runId: string;
 };
 
@@ -52,7 +53,7 @@ const GameOver = styled.div`
 	font-weight: 700;
 `;
 
-export const Guess = ({a, b, isGameOver, streak, maxStreak, category, runId}: GuessProps) => {
+export const Guess = ({a, b, isGameOver, streak, maxStreak, category, arg, runId}: GuessProps) => {
 	const [reveal, setReveal] = useState(isGameOver);
 	const [loading, setLoading] = useState(false);
 	const [teamA, setTeamA] = useState<TeamRound>(a);
@@ -115,7 +116,7 @@ export const Guess = ({a, b, isGameOver, streak, maxStreak, category, runId}: Gu
 	}
 
 	return <>
-		<Stats streak={currentStreak} maxStreak={currentMaxStreak} category={category} />
+		<Stats streak={currentStreak} maxStreak={currentMaxStreak} category={category} arg={arg} />
 		<Grid>
 			<TeamCard label="A" team={teamA}/>
 			<TeamCard

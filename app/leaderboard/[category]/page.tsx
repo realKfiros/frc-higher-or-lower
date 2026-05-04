@@ -7,11 +7,11 @@ import {LeaderboardRow} from "@/lib/interfaces/leaderboard";
 
 type LeaderboardPageProps = {
 	params: Promise<{category: string, arg?: string}>,
-	searchParams: Promise<{team?: string, country?: string, limit?: string, scan?: string}>,
+	searchParams: Promise<{team?: string, country?: string, limit?: string, scan?: string, arg?: string}>,
 };
 
 export default async function LeaderboardPage({ params, searchParams }: LeaderboardPageProps) {
-	const {category, arg} = await params;
+	const {category} = await params;
 	const c = categories[category];
 
 	if (!c) {
@@ -20,7 +20,7 @@ export default async function LeaderboardPage({ params, searchParams }: Leaderbo
 		</Page>;
 	}
 
-	const {country, team, limit, scan} = await searchParams;
+	const {country, team, limit, scan, arg} = await searchParams;
 	const rows = await top(category, country, team, limit, scan, arg);
 
 	return <Page>

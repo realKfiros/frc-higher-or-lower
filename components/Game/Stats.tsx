@@ -1,6 +1,5 @@
 "use client";
 
-import {profileStore} from "@/stores/profileStore";
 import Link from "next/dist/client/link";
 import {Header} from "@/styles/page";
 import styled from "styled-components";
@@ -9,6 +8,7 @@ type StatsProps = {
 	streak: number;
 	maxStreak: number;
 	category: string;
+	arg?: string;
 }
 
 const Container = styled.div`
@@ -40,13 +40,14 @@ const Badge = styled.span`
 	font-weight: 700;
 `;
 
-export const Stats = ({streak, maxStreak, category}: StatsProps) => {
+export const Stats = ({streak, maxStreak, category, arg}: StatsProps) => {
+	let href = arg ? `/leaderboard/${category}?arg=${arg}` : `/leaderboard/${category}`;
 	return (
 		<Header>
 			<Container>
 				<Badge>Streak: {streak}</Badge>
 				<Badge>Best: {maxStreak}</Badge>
-				<Link href={"/leaderboard/" + category}>
+				<Link href={href}>
 					<SmallBtn>Leaderboard</SmallBtn>
 				</Link>
 			</Container>
