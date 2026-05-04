@@ -71,14 +71,6 @@ const categories = {
 		useCategory: 'regular',
 		subcategories: getRelevantSubcategories(countries),
 	},
-	byProvince: {
-		title: "Filter by Province",
-		leaderboardKey: (province: string) => `lb:banners:province:${province}`,
-		filter: () => true,
-		bannerTypes: Object.values(BannerTypes),
-		useCategory: 'regular',
-		subcategories: getRelevantSubcategories(provinces),
-	}
 } as Categories;
 
 export const getTeamsForCategory = (category: string, arg?: string)=> {
