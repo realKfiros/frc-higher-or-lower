@@ -2,6 +2,12 @@ import categories, {BannerTypes} from "@/lib/categories";
 import {tbaGet} from "@/lib/tba";
 import {CategoryTeams, TeamsLists} from "@/lib/interfaces/category";
 
+type TeamSimple = {
+	key: string;
+	country: string;
+	state_prov: string;
+}
+
 type YearsParticipated = {
 	[teamKey: string]: number[];
 };
@@ -24,6 +30,19 @@ type EventSimple = {
 	event_type: number;
 };
 
+type District = {
+	abbreviation: string;
+	key: string;
+};
+
+type DistrictsTeams = {
+	[districtKey: string]: string[];
+};
+
+type GenericTeamsList = {
+	[listKey: string]: string[];
+};
+
 enum ExcludedEventTypes {
 	OFFSEASON = 99,
 	PRESEASON = 100,
@@ -33,22 +52,38 @@ enum ExcludedEventTypes {
 const makeLists = async () => {
 	const yearsParticipated: YearsParticipated = {};
 	const awards: Awards = {};
+	const countries: GenericTeamsList = {};
+	const provinces: GenericTeamsList = {};
 
 	let year = 1992;
 	while (year <= new Date().getFullYear()) {
 		console.log(`Processing year ${year}`);
 		let yearTeamsPage = 0;
 		while (true) {
-			const teams = await tbaGet<string[]>(`/teams/${year}/${yearTeamsPage}/keys`, []);
+			const teams = await tbaGet<TeamSimple[]>(`/teams/${year}/${yearTeamsPage}/simple`, []);
 			if (teams.length === 0) {
 				break;
 			}
-			for (const teamKey of teams) {
-				if (!yearsParticipated[teamKey]) {
-					console.log(teamKey);
-					yearsParticipated[teamKey] = [];
+			for (const {key, country, state_prov} of teams) {
+				if (!yearsParticipated[key]) {
+					console.log(key);
+					yearsParticipated[key] = [];
 				}
-				yearsParticipated[teamKey].push(year);
+				yearsParticipated[key].push(year);
+
+				if (!countries[country]) {
+					countries[country] = [];
+				}
+				const countryTeams = new Set(countries[country]);
+				countryTeams.add(key);
+				countries[country] = Array.from(countryTeams);
+
+				if (!provinces[state_prov]) {
+					provinces[state_prov] = [];
+				}
+				const provinceTeams = new Set(provinces[state_prov]);
+				provinceTeams.add(key);
+				provinces[state_prov] = Array.from(provinceTeams);
 			}
 			yearTeamsPage++;
 		}
@@ -76,15 +111,17 @@ const makeLists = async () => {
 		year++;
 	}
 
-	await Bun.write('./data/participation_data.json', JSON.stringify(yearsParticipated, null, 4));
-	await Bun.write('./data/awards_data.json', JSON.stringify(awards, null, 4));
+	await Bun.write('./data/participation.json', JSON.stringify(yearsParticipated, null, 4));
+	await Bun.write('./data/countries.json', JSON.stringify(countries, null, 4));
+	await Bun.write('./data/provinces.json', JSON.stringify(provinces, null, 4));
+	await Bun.write('./data/awards.json', JSON.stringify(awards, null, 4));
 
 	console.log('Basic lists generated successfully.');
 }
 
 const makeCategoryLists = async () => {
-	const awardsFile = Bun.file('./data/awards_data.json');
-	const participationFile = Bun.file('./data/participation_data.json');
+	const awardsFile = Bun.file('./data/awards.json');
+	const participationFile = Bun.file('./data/participation.json');
 	const awards: Awards = JSON.parse(await awardsFile.text());
 	const yearsParticipated: YearsParticipated = JSON.parse(await participationFile.text());
 
