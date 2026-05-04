@@ -5,7 +5,7 @@ import {loadingStore} from "@/stores/loadingStore";
 export const useStartGame = () => {
 	const router = useRouter();
 
-	return async (category: string) => {
+	return async (category: string, arg?: string) => {
 		loadingStore.loading = true;
 		const res = await fetch("/api/run/create", {
 			method: "POST",
@@ -13,6 +13,7 @@ export const useStartGame = () => {
 			body: JSON.stringify({
 				playerId: getOrCreatePlayerId(),
 				category,
+				arg
 			}),
 		});
 		const data = (await res.json()) as { ok: boolean; runId: string };

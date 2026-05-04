@@ -1,6 +1,5 @@
-import teamsByCategories from '@/data/team_lists.json' with {type: 'json'};
-import {TeamsLists} from "@/lib/interfaces/category";
+import {getTeamsForCategory} from "@/lib/categories";
 
-export function getTeamBannerCount(category: string, teamKey: string): number {
-	return (teamsByCategories as TeamsLists)[category][teamKey];
+export function getTeamBannerCount(category: string, teamKey: string, arg?: string): number {
+	return getTeamsForCategory(category, arg)[teamKey];
 }

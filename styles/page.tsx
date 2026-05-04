@@ -22,3 +22,8 @@ export const Title = styled.h1`
 	font-size: 18px;
 	margin: 0;
 `;
+
+export const Subtitle = styled.div`
+	font-size: 16px;
+	font-weight: 550;
+`;

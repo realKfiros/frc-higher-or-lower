@@ -3,7 +3,7 @@ import categories from "@/lib/categories";
 import {createRun} from "@/actions/run";
 
 export async function POST(req: Request) {
-	const body = (await req.json()) as { playerId: string, category: string };
+	const body = (await req.json()) as { playerId: string, category: string, arg?: string };
 	const playerId = (body.playerId || "").trim();
 	if (!playerId) {
 		return NextResponse.json({ok: false, error: "Missing playerId"}, {status: 400});
@@ -16,6 +16,6 @@ export async function POST(req: Request) {
 		return NextResponse.json({ok: false, error: "Invalid category"}, {status: 400});
 	}
 
-	const runId = await createRun(playerId, category);
+	const runId = await createRun(playerId, category, body.arg);
 	return NextResponse.json({ ok: true, runId });
 }

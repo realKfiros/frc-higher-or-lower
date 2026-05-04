@@ -1,12 +1,13 @@
 "use client";
 
-import {Header, Page, Title} from "@/styles/page";
+import {Header, Page, Subtitle, Title} from "@/styles/page";
 import categories from "@/lib/categories";
 import styled from "styled-components";
 import {useStartGame} from "@/hooks/startGame";
 import {observer} from "mobx-react-lite";
 import {LoadingBoundary} from "@/components/LoadingBoundary";
 import {profileStore} from "@/stores/profileStore";
+import {useEffect, useState} from "react";
 
 const SmallBtn = styled.button`
 	border: 1px solid rgba(0, 0, 0, .14);
@@ -37,7 +38,29 @@ const CategoryButton = styled.div`
 `;
 
 export default observer(function MainPage() {
+	const [category, setCategory] = useState<string|null>(null);
 	const startNewGame = useStartGame();
+	const [shownCategories, setShownCategories] = useState<{[key: string]: any}>({});
+
+	useEffect(() => {
+		if (category) {
+			if (!categories[category].subcategories) {
+				startNewGame(category);
+			} else {
+				setShownCategories(categories[category].subcategories);
+			}
+		} else {
+			setShownCategories(categories);
+		}
+	}, [category]);
+
+	const onCategoryClick = (categoryId: string) => {
+		if (category) {
+			startNewGame(category, categoryId);
+		} else {
+			setCategory(categoryId);
+		}
+	}
 
 	return (
 		<LoadingBoundary>
@@ -48,10 +71,17 @@ export default observer(function MainPage() {
 					</Title>
 					<SmallBtn onClick={() => profileStore.toggle(true)}>Profile</SmallBtn>
 				</Header>
-				<p>Create new game:</p>
-				{Object.entries(categories).map(([categoryId, category]) => (
-					<CategoryButton key={categoryId} onClick={() => startNewGame(categoryId)}>
-						{category.title}
+				<Header>
+					<Subtitle>
+						{category ? categories[category].title : "Create new game:"}
+					</Subtitle>
+					{category && (
+						<SmallBtn onClick={() => setCategory(null)}>Back</SmallBtn>
+					)}
+				</Header>
+				{Object.entries(shownCategories).map(([categoryId, category]) => (
+					<CategoryButton key={categoryId} onClick={() => onCategoryClick(categoryId)}>
+						{category.title || categoryId}
 					</CategoryButton>
 				))}
 			</Page>

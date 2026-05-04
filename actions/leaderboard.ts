@@ -7,7 +7,7 @@ import {RunRecord} from "@/lib/interfaces/run";
 
 const {getJson, zrevrangeWithScores} = kv;
 
-export const top = async (category: string, countryStr?: string, teamStr?: string, limitStr: string = '50', scanStr: string = '250'): Promise<Array<LeaderboardRow | false>> => {
+export const top = async (category: string, countryStr?: string, teamStr?: string, limitStr: string = '50', scanStr: string = '250', arg?: string): Promise<Array<LeaderboardRow | false>> => {
 	const c = categories[category];
 	if (!c) {
 		return [];
@@ -19,7 +19,7 @@ export const top = async (category: string, countryStr?: string, teamStr?: strin
 	const limit = Math.min(50, Math.max(5, Number(limitStr)));
 	const scan = Math.min(400, Math.max(limit, Number(scanStr)));
 
-	const raw = (await zrevrangeWithScores(c.leaderboardKey, 0, scan - 1)).result;
+	const raw = (await zrevrangeWithScores(c.leaderboardKey(arg), 0, scan - 1)).result;
 
 	const pairs: Array<{ playerId: string; score: number }> = [];
 	for (let i = 0; i < raw.length; i += 2) {
@@ -54,13 +54,13 @@ export const top = async (category: string, countryStr?: string, teamStr?: strin
 	return filtered.slice(0, limit);
 };
 
-export const submitRun = async (playerId: string, category: string, score: number): Promise<RunRecord> => {
+export const submitRun = async (playerId: string, category: string, score: number, arg?: string): Promise<RunRecord> => {
 	const c = categories[category];
 	if (!c) {
 		throw new Error("Invalid category");
 	}
 
-	const currentHighScoreRes = await kv.zscore(c.leaderboardKey, playerId);
+	const currentHighScoreRes = await kv.zscore(c.leaderboardKey(arg), playerId);
 	const currentHighScore = currentHighScoreRes.result || 0;
 	if (score <= currentHighScore) {
 		return 'none';
@@ -68,9 +68,9 @@ export const submitRun = async (playerId: string, category: string, score: numbe
 
 	console.log(`New high score for player ${playerId} in category ${category}: ${score} (old: ${currentHighScore})`);
 
-	await kv.zadd(c.leaderboardKey, score, playerId);
+	await kv.zadd(c.leaderboardKey(arg), score, playerId);
 
-	const personalRank = await kv.zrevrank(c.leaderboardKey, playerId);
+	const personalRank = await kv.zrevrank(c.leaderboardKey(arg), playerId);
 	if (personalRank.result === 0) {
 		return 'global';
 	}

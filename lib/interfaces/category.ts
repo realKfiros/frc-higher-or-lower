@@ -1,10 +1,16 @@
-export type FilterFunction = (bannersCount: number, yearsParticipated: number) => boolean;
+export type FilterFunction = (bannersCount: number, ...args: any[]) => boolean;
+
+export type Subcategories = {
+	[key: string]: string[]
+}
 
 export type Category = {
 	title: string;
-	leaderboardKey: string;
+	leaderboardKey: (subcategoryKey?: string) => string;
 	filter: FilterFunction;
 	bannerTypes: number[];
+	useCategory?: string;
+	subcategories?: Subcategories;
 };
 
 export type CategoryTeams = {

@@ -9,6 +9,7 @@ export type RunState = {
 	bBanners: number;
 	updatedAt: number;
 	category: string;
+	arg?: string;
 	isGameOver: boolean;
 };
 

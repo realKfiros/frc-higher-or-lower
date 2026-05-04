@@ -8,7 +8,7 @@ import {getRandomTeamKey} from "@/lib/teams";
 
 const {getJson, setJson} = kv;
 
-export const createRun = async (playerId: string, category: string) => {
+export const createRun = async (playerId: string, category: string, arg?: string) => {
 	const c = categories[category];
 	if (!c) {
 		throw new Error("Invalid category");
@@ -19,11 +19,11 @@ export const createRun = async (playerId: string, category: string) => {
 			? crypto.randomUUID()
 			: `${Date.now()}-${Math.random().toString(16).slice(2)}`;
 
-	const keyA = getRandomTeamKey(category);
+	const keyA = getRandomTeamKey(category, -1, arg);
 
-	const { aBanners, bBanners, keyB } = await getRound(category, keyA);
+	const { aBanners, bBanners, keyB } = await getRound(category, keyA, arg);
 
-	const maxStreak = await kv.zscore(c.leaderboardKey, playerId);
+	const maxStreak = await kv.zscore(c.leaderboardKey(arg), playerId);
 
 	const state: RunState = {
 		runId,
@@ -35,6 +35,7 @@ export const createRun = async (playerId: string, category: string) => {
 		aBanners,
 		bBanners,
 		category,
+		arg,
 		updatedAt: Date.now(),
 		isGameOver: false,
 	};

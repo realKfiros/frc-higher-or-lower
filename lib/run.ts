@@ -1,9 +1,7 @@
 import {tbaGet} from "@/lib/tba";
 import {getTeamBannerCount} from "@/lib/banners";
 import {kv} from "@/lib/kv";
-import {getRound} from "@/lib/round";
 import {TeamRound} from "@/lib/interfaces/game";
-import categories from "@/lib/categories";
 import {RunRecord, RunState} from "@/lib/interfaces/run";
 import {getRandomTeamKey} from "@/lib/teams";
 import {submitRun} from "@/actions/leaderboard";
@@ -31,40 +29,6 @@ export type PublicRound = {
 
 async function getTeam(teamKey: string): Promise<TeamSimple> {
 	return tbaGet<TeamSimple>(`/team/${teamKey}`);
-}
-
-export async function createRun(category: string, playerId: string): Promise<PublicRound> {
-	const runId =
-		typeof crypto !== "undefined" && "randomUUID" in crypto
-			? crypto.randomUUID()
-			: `${Date.now()}-${Math.random().toString(16).slice(2)}`;
-
-	const keyA = getRandomTeamKey(category);
-	const { aTeam, bTeam, aBanners, bBanners, keyB } = await getRound(category, keyA);
-
-	const state: RunState = {
-		runId,
-		playerId,
-		streak: 0,
-		maxStreak: 0,
-		aKey: keyA,
-		bKey: keyB,
-		aBanners,
-		bBanners,
-		category,
-		isGameOver: false,
-		updatedAt: Date.now(),
-	};
-
-	await setJson(`run:${runId}`, state);
-
-	return {
-		runId,
-		a: { ...aTeam, banners: aBanners },
-		b: { ...bTeam }, // without banners
-		streak: 0,
-		maxStreak: 0,
-	};
 }
 
 export async function loadRun(runId: string): Promise<RunState | null> {
@@ -112,7 +76,7 @@ export async function guessRun(runId: string, playerId: string, dir: "higher" | 
 			isGameOver: true,
 			updatedAt: Date.now(),
 		});
-		const record = await submitRun(state.playerId, state.category, state.streak);
+		const record = await submitRun(state.playerId, state.category, state.streak, state.arg);
 		return { correct, revealBanners, round, record };
 	}
 
@@ -123,15 +87,15 @@ export async function guessRun(runId: string, playerId: string, dir: "higher" | 
 	const nextAKey = state.bKey;
 
 	const nextATeam = await getTeam(nextAKey);
-	const nextABanners = getTeamBannerCount(state.category, nextAKey);
+	const nextABanners = getTeamBannerCount(state.category, nextAKey, state.arg);
 
 	const { bTeam, bBanners, keyB } = await (async () => {
 		// new opponent
-		let newB = getRandomTeamKey(state.category, nextABanners);
+		let newB = getRandomTeamKey(state.category, nextABanners, state.arg);
 		while (newB === nextAKey) {
-			newB = getRandomTeamKey(state.category, nextABanners);
+			newB = getRandomTeamKey(state.category, nextABanners, state.arg);
 		}
-		const [t, c] = await Promise.all([getTeam(newB), getTeamBannerCount(state.category, newB)]);
+		const [t, c] = await Promise.all([getTeam(newB), getTeamBannerCount(state.category, newB, state.arg)]);
 		return { bTeam: t, bBanners: c, keyB: newB };
 	})();
 

@@ -6,11 +6,13 @@ export async function POST(req: Request) {
 		runId: string;
 		playerId: string;
 		dir: "higher" | "lower";
+		arg?: string;
 	};
 
 	const runId = (body.runId || "").trim();
 	const playerId = (body.playerId || "").trim();
 	const dir = body.dir;
+	const arg = body.arg;
 
 	if (!runId || !playerId) {
 		return NextResponse.json({ ok: false, error: "Missing runId/playerId" }, { status: 400 });
