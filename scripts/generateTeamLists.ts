@@ -30,18 +30,15 @@ type EventSimple = {
 	event_type: number;
 };
 
-type District = {
-	abbreviation: string;
-	key: string;
-};
-
-type DistrictsTeams = {
-	[districtKey: string]: string[];
-};
-
 type GenericTeamsList = {
 	[listKey: string]: string[];
 };
+
+const countryName = (country: string) => {
+	if (country === 'Turkey')
+		return 'Türkiye';
+	return country;
+}
 
 enum ExcludedEventTypes {
 	OFFSEASON = 99,
@@ -71,12 +68,13 @@ const makeLists = async () => {
 				}
 				yearsParticipated[key].push(year);
 
-				if (!countries[country]) {
-					countries[country] = [];
+				const _countryName = countryName(country);
+				if (!countries[_countryName]) {
+					countries[_countryName] = [];
 				}
-				const countryTeams = new Set(countries[country]);
+				const countryTeams = new Set(countries[_countryName]);
 				countryTeams.add(key);
-				countries[country] = Array.from(countryTeams);
+				countries[_countryName] = Array.from(countryTeams);
 
 				if (!provinces[state_prov]) {
 					provinces[state_prov] = [];
