@@ -67,5 +67,6 @@ export const loadRun = async (runId: string) => {
 		maxStreak: state.maxStreak,
 		category: state.category,
 		isGameOver: state.isGameOver,
+		arg: state.arg,
 	};
 };

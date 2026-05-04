@@ -23,7 +23,7 @@ export default async function GamePage({params}: GamePageProps) {
 
 	return <Page>
 		<Header>
-			<Title>Game - {category.title}</Title>
+			<Title>Game - {category.title} {run.arg && `(${run.arg})`}</Title>
 		</Header>
 		<Guess {...run} />
 		<Footer {...run} />

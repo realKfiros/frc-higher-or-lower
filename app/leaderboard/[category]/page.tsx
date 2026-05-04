@@ -25,7 +25,7 @@ export default async function LeaderboardPage({ params, searchParams }: Leaderbo
 
 	return <Page>
 		<Header>
-			<Title>Leaderboard - {c.title}</Title>
+			<Title>Leaderboard - {c.title} {arg && `(${arg})`}</Title>
 		</Header>
 		<Filters />
 		<Table rows={rows.filter(Boolean) as LeaderboardRow[]} />
