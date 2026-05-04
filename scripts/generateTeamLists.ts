@@ -68,20 +68,24 @@ const makeLists = async () => {
 				}
 				yearsParticipated[key].push(year);
 
-				const _countryName = countryName(country);
-				if (!countries[_countryName]) {
-					countries[_countryName] = [];
+				if (country) {
+					const _countryName = countryName(country);
+					if (!countries[_countryName]) {
+						countries[_countryName] = [];
+					}
+					const countryTeams = new Set(countries[_countryName]);
+					countryTeams.add(key);
+					countries[_countryName] = Array.from(countryTeams);
 				}
-				const countryTeams = new Set(countries[_countryName]);
-				countryTeams.add(key);
-				countries[_countryName] = Array.from(countryTeams);
 
-				if (!provinces[state_prov]) {
-					provinces[state_prov] = [];
+				if (state_prov) {
+					if (!provinces[state_prov]) {
+						provinces[state_prov] = [];
+					}
+					const provinceTeams = new Set(provinces[state_prov]);
+					provinceTeams.add(key);
+					provinces[state_prov] = Array.from(provinceTeams);
 				}
-				const provinceTeams = new Set(provinces[state_prov]);
-				provinceTeams.add(key);
-				provinces[state_prov] = Array.from(provinceTeams);
 			}
 			yearTeamsPage++;
 		}
