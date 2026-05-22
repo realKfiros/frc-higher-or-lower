@@ -1,7 +1,7 @@
 import {observer} from "mobx-react-lite";
 import {loadingStore} from "@/stores/loadingStore";
-import {Spinner} from "@/components/Spinner";
 import {ReactNode} from "react";
+import {HomeSkeleton} from "@/components/Skeletons";
 
 type LoadingBoundaryProps = {
 	children: ReactNode;
@@ -9,7 +9,7 @@ type LoadingBoundaryProps = {
 
 export const LoadingBoundary = observer(function ({children}: LoadingBoundaryProps) {
 	if (loadingStore.loading) {
-		return <Spinner />;
+		return <HomeSkeleton />;
 	}
 
 	return <>{children}</>;
