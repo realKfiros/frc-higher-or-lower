@@ -1,19 +1,25 @@
 import {NextResponse} from "next/server";
 import {PlayerProfile} from "@/lib/localProfile";
 import {kv} from "@/lib/kv";
-import {flag} from "country-emoji";
+import {normalizeId, readJsonBody, sanitizeText} from "@/lib/apiValidation";
 
 const {setJson} = kv;
 
 export async function POST(req: Request) {
-	const body = (await req.json()) as PlayerProfile;
-	const playerId = (body.id || "").trim();
-	if (!playerId) {
-		return NextResponse.json({ok: false, error: "Missing playerId"}, {status: 400});
+	const body = await readJsonBody<PlayerProfile>(req);
+	if (!body) {
+		return NextResponse.json({ok: false, error: "Invalid request"}, {status: 400});
 	}
+
+	const playerId = normalizeId(body.id);
+	if (!playerId) {
+		return NextResponse.json({ok: false, error: "Invalid playerId"}, {status: 400});
+	}
+	const favoriteTeam = Number(body.favoriteTeam);
 	await setJson(`player:${playerId}`, {
-		...body,
-		country: flag((body.country || '').trim()),
+		id: playerId,
+		name: sanitizeText(body.name, 40),
+		favoriteTeam: Number.isInteger(favoriteTeam) && favoriteTeam > 0 && favoriteTeam < 20_000 ? favoriteTeam : null,
 	});
 	return NextResponse.json({ ok: true, playerId });
 }

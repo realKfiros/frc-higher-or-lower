@@ -1,21 +1,23 @@
 import {NextResponse} from "next/server";
-import categories from "@/lib/categories";
 import {createRun} from "@/actions/run";
+import {normalizeCategory, normalizeCategoryArg, normalizeId, readJsonBody} from "@/lib/apiValidation";
 
 export async function POST(req: Request) {
-	const body = (await req.json()) as { playerId: string, category: string, arg?: string };
-	const playerId = (body.playerId || "").trim();
-	if (!playerId) {
-		return NextResponse.json({ok: false, error: "Missing playerId"}, {status: 400});
-	}
-	const category = (body.category || "").trim();
-	if (!category) {
-		return NextResponse.json({ok: false, error: "Missing category"}, {status: 400});
-	}
-	if (!categories[category]) {
-		return NextResponse.json({ok: false, error: "Invalid category"}, {status: 400});
+	const body = await readJsonBody<{ playerId: string, category: string, arg?: string }>(req);
+	if (!body) {
+		return NextResponse.json({ok: false, error: "Invalid request"}, {status: 400});
 	}
 
-	const runId = await createRun(playerId, category, body.arg);
+	const playerId = normalizeId(body.playerId);
+	if (!playerId) {
+		return NextResponse.json({ok: false, error: "Invalid playerId"}, {status: 400});
+	}
+	const category = normalizeCategory(body.category);
+	if (!category) {
+		return NextResponse.json({ok: false, error: "Invalid category"}, {status: 400});
+	}
+	const arg = normalizeCategoryArg(category, body.arg);
+
+	const runId = await createRun(playerId, category, arg);
 	return NextResponse.json({ ok: true, runId });
 }

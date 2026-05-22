@@ -1,4 +1,3 @@
-import {flag} from "country-emoji";
 import {kv} from "@/lib/kv";
 import {PlayerProfile} from "@/lib/localProfile";
 import categories from "@/lib/categories";
@@ -7,13 +6,13 @@ import {RunRecord} from "@/lib/interfaces/run";
 
 const {getJson, zrevrangeWithScores} = kv;
 
-export const top = async (category: string, countryStr?: string, teamStr?: string, limitStr: string = '50', scanStr: string = '250', arg?: string): Promise<Array<LeaderboardRow | false>> => {
+export const top = async (category: string, nameStr?: string, teamStr?: string, limitStr: string = '50', scanStr: string = '250', arg?: string): Promise<Array<LeaderboardRow | false>> => {
 	const c = categories[category];
 	if (!c) {
 		return [];
 	}
 
-	const country = flag((countryStr || "").trim().toLowerCase());
+	const name = (nameStr || "").trim().toLowerCase();
 	const team = teamStr ? Number(teamStr) : null;
 
 	const limit = Math.min(50, Math.max(5, Number(limitStr)));
@@ -29,13 +28,13 @@ export const top = async (category: string, countryStr?: string, teamStr?: strin
 	const rows = await Promise.all(
 		pairs.map(async (p) => {
 			const profile = await getJson<PlayerProfile>(`player:${p.playerId}`);
-			if (!profile?.name)
+			if (!profile?.name) {
 				return false;
+			}
 			return {
 				playerId: p.playerId,
 				score: p.score,
-				name: profile?.name,
-				country: profile?.country || "",
+				name: profile.name,
 				favoriteTeam: profile?.favoriteTeam ?? null,
 			};
 		})
@@ -45,7 +44,7 @@ export const top = async (category: string, countryStr?: string, teamStr?: strin
 		if (!r) {
 			return false;
 		}
-		if (country && (r.country || "").trim().toLowerCase() !== country) {
+		if (name && !r.name.toLowerCase().includes(name)) {
 			return false;
 		}
 		return !(team != null && r.favoriteTeam !== team);
@@ -61,8 +60,8 @@ export const submitRun = async (playerId: string, category: string, score: numbe
 	}
 
 	const currentHighScoreRes = await kv.zscore(c.leaderboardKey(arg), playerId);
-	const currentHighScore = currentHighScoreRes.result || 0;
-	if (score <= currentHighScore) {
+	const currentHighScore = currentHighScoreRes.result;
+	if (currentHighScore != null && score <= currentHighScore) {
 		return 'none';
 	}
 

@@ -10,7 +10,7 @@ const Container = styled.div`
 	gap: 10px;
 
 	@media (min-width: 680px) {
-		grid-template-columns: 1fr 1fr auto;
+		grid-template-columns: 1fr 1fr;
 		align-items: end;
 	}
 `;
@@ -46,11 +46,11 @@ export const Filters = () => {
 
 	return <Container>
 		<div>
-			<Label>Filter: Country</Label>
+			<Label>Search: Player Name</Label>
 			<Input
-				defaultValue={searchParams.get('country')?.toString()}
-				onChange={(e) => updateFilter('country', e.target.value)}
-				placeholder="e.g. Israel"
+				defaultValue={searchParams.get('name')?.toString()}
+				onChange={(e) => updateFilter('name', e.target.value)}
+				placeholder="e.g. Kfir"
 			/>
 		</div>
 

@@ -71,7 +71,7 @@ export const ProfileModal = observer(function ProfileModal() {
 			<Modal onClick={(e) => e.stopPropagation()}>
 				{recordOpened && (
 					<div style={{ fontWeight: 800, fontSize: 18, marginBottom: 10 }}>
-						You've got a new record! Add your details if you want to be shown in the leaderboard (or verify your existing details)
+						Add a name to post this run to the public leaderboard.
 					</div>
 				)}
 				<div style={{ fontWeight: 800, fontSize: 16 }}>Player Profile</div>
@@ -85,15 +85,6 @@ export const ProfileModal = observer(function ProfileModal() {
 						value={p.name ?? ""}
 						onChange={(e) => profileStore.update({ name: e.target.value })}
 						placeholder="e.g. Kfir"
-					/>
-				</Row>
-
-				<Row>
-					<Label>Country</Label>
-					<Input
-						value={p.country ?? ""}
-						onChange={(e) => profileStore.update({ country: e.target.value })}
-						placeholder="e.g. Israel"
 					/>
 				</Row>
 

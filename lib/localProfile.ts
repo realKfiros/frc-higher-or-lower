@@ -1,7 +1,6 @@
 export type PlayerProfile = {
 	id: string;          // uuid
 	name?: string;       // optional
-	country?: string;    // optional (ISO/Free text)
 	favoriteTeam?: number | null; // team_number
 };
 

@@ -1,21 +1,24 @@
 import {NextResponse} from "next/server";
 import {guessRun} from "@/lib/run";
+import {normalizeId, readJsonBody} from "@/lib/apiValidation";
 
 export async function POST(req: Request) {
-	const body = (await req.json()) as {
+	const body = await readJsonBody<{
 		runId: string;
 		playerId: string;
 		dir: "higher" | "lower";
-		arg?: string;
-	};
+	}>(req);
 
-	const runId = (body.runId || "").trim();
-	const playerId = (body.playerId || "").trim();
+	if (!body) {
+		return NextResponse.json({ ok: false, error: "Invalid request" }, { status: 400 });
+	}
+
+	const runId = normalizeId(body.runId);
+	const playerId = normalizeId(body.playerId);
 	const dir = body.dir;
-	const arg = body.arg;
 
 	if (!runId || !playerId) {
-		return NextResponse.json({ ok: false, error: "Missing runId/playerId" }, { status: 400 });
+		return NextResponse.json({ ok: false, error: "Invalid runId/playerId" }, { status: 400 });
 	}
 	if (dir !== "higher" && dir !== "lower") {
 		return NextResponse.json({ ok: false, error: "Invalid dir" }, { status: 400 });
