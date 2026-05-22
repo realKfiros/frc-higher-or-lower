@@ -75,7 +75,7 @@ const categories = {
 
 export const getTeamsForCategory = (category: string, arg?: string)=> {
 	const checkCategory = categories[category].useCategory || category;
-	let categoryTeams = (teamsByCategories as TeamsLists)[checkCategory] ?? [];
+	const categoryTeams = {...((teamsByCategories as TeamsLists)[checkCategory] ?? {})};
 	if (arg) {
 		const countryTeams = (countries as { [country: string]: string[] })[arg] ?? [];
 		for (const team in categoryTeams) {

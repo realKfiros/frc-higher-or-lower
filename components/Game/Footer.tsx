@@ -20,13 +20,14 @@ const FooterRow = styled.div`
 	display: flex;
 	justify-content: center;
 	gap: 10px;
+	flex-wrap: wrap;
 `;
 
 const SmallBtn = styled.button`
-	border: 1px solid rgba(0, 0, 0, .14);
+	border: 1px solid rgba(24, 32, 44, .14);
 	background: white;
 	padding: 9px 12px;
-	border-radius: 12px;
+	border-radius: 8px;
 	cursor: pointer;
 	font-weight: 700;
 

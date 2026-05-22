@@ -2,9 +2,8 @@ import {kv} from "@/lib/kv";
 import {RunState} from "@/lib/interfaces/run";
 import {getRound} from "@/lib/round";
 import categories from "@/lib/categories";
-import {tbaGet} from "@/lib/tba";
-import {TeamSimple} from "@/lib/interfaces/tba";
 import {getRandomTeamKey} from "@/lib/teams";
+import {getTeamSummary} from "@/lib/teamInfo";
 
 const {getJson, setJson} = kv;
 
@@ -51,8 +50,8 @@ export const loadRun = async (runId: string) => {
 		throw new Error("Game not found");
 	}
 
-	const aTeam = await tbaGet<TeamSimple>(`/team/${state.aKey}`);
-	const bTeam = await tbaGet<TeamSimple>(`/team/${state.bKey}`);
+	const aTeam = getTeamSummary(state.aKey);
+	const bTeam = getTeamSummary(state.bKey);
 
 	let bBanners = undefined; // without banners, unless game over
 	if (state.isGameOver) {
@@ -68,5 +67,6 @@ export const loadRun = async (runId: string) => {
 		category: state.category,
 		isGameOver: state.isGameOver,
 		arg: state.arg,
+		postedToLeaderboard: state.postedToLeaderboard,
 	};
 };

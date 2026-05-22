@@ -1,8 +1,7 @@
 import {getTeamBannerCount} from "@/lib/banners";
 import {TeamSimple} from "@/lib/interfaces/tba";
-import {tbaGet} from "@/lib/tba";
 import {getRandomTeamKey} from "@/lib/teams";
-import {getTeamsForCategory} from "@/lib/categories";
+import {getTeamSummary} from "@/lib/teamInfo";
 
 type Round = {
 	aTeam: TeamSimple;
@@ -19,11 +18,9 @@ export const getRound = async (category: string, keyA: string, arg?: string): Pr
 	if (keyB === keyA) {
 		return getRound(category, keyA, arg);
 	}
-	const [aTeam, bTeam, aBanners, bBanners] = await Promise.all([
-		tbaGet<TeamSimple>(`/team/${keyA}`),
-		tbaGet<TeamSimple>(`/team/${keyB}`),
-		getTeamBannerCount(category, keyA as string, arg),
-		getTeamBannerCount(category, keyB, arg),
-	]);
+	const aTeam = getTeamSummary(keyA);
+	const bTeam = getTeamSummary(keyB);
+	const aBanners = getTeamBannerCount(category, keyA as string, arg);
+	const bBanners = getTeamBannerCount(category, keyB, arg);
 	return { aTeam, bTeam, aBanners, bBanners, keyA, keyB };
 }

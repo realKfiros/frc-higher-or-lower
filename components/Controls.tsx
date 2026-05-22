@@ -13,18 +13,24 @@ const Row = styled.div`
   gap: 10px;
   justify-content: center;
   align-items: center;
+  flex-wrap: wrap;
 `;
 
-const Button = styled.button`
-  border: 1px solid rgba(0,0,0,.14);
-  background: white;
-  padding: 10px 14px;
-  border-radius: 12px;
+const Button = styled.button<{ $tone: "lower" | "higher" }>`
+  min-width: 138px;
+  border: 1px solid rgba(24,32,44,.14);
+  background: ${({$tone}) => $tone === "higher" ? "#0f766e" : "#334155"};
+  color: white;
+  padding: 12px 16px;
+  border-radius: 8px;
   cursor: pointer;
-  font-weight: 700;
+  font-weight: 800;
+  box-shadow: 0 12px 28px rgba(24,32,44,.16);
+  transition: transform .18s, box-shadow .18s, opacity .18s;
 
   &:hover {
-    background: rgba(0,0,0,.04);
+    transform: translateY(-1px);
+    box-shadow: 0 16px 34px rgba(24,32,44,.20);
   }
 
   &:disabled {
@@ -36,10 +42,10 @@ const Button = styled.button`
 export default function Controls({onHigher, onLower, disabled}: ControlsProps) {
 	return (
 		<Row>
-			<Button onClick={onLower} disabled={disabled}>
+			<Button $tone="lower" onClick={onLower} disabled={disabled}>
 				Lower
 			</Button>
-			<Button onClick={onHigher} disabled={disabled}>
+			<Button $tone="higher" onClick={onHigher} disabled={disabled}>
 				Higher
 			</Button>
 		</Row>

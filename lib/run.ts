@@ -1,23 +1,13 @@
-import {tbaGet} from "@/lib/tba";
 import {getTeamBannerCount} from "@/lib/banners";
 import {kv} from "@/lib/kv";
 import {TeamRound} from "@/lib/interfaces/game";
-import {RunRecord, RunState} from "@/lib/interfaces/run";
+import {PublishResult, RunRecord, RunState} from "@/lib/interfaces/run";
 import {getRandomTeamKey} from "@/lib/teams";
 import {submitRun} from "@/actions/leaderboard";
+import {getTeamSummary} from "@/lib/teamInfo";
+import {PlayerProfile} from "@/lib/localProfile";
 
 const {getJson, setJson} = kv;
-
-type TeamSimple = {
-	key: string;
-	team_number: number;
-	nickname: string | null;
-	name: string | null;
-	city?: string | null;
-	state_prov?: string | null;
-	country?: string | null;
-	rookie_year?: number | null;
-};
 
 export type PublicRound = {
 	runId: string;
@@ -26,10 +16,6 @@ export type PublicRound = {
 	streak: number;
 	maxStreak: number;
 };
-
-async function getTeam(teamKey: string): Promise<TeamSimple> {
-	return tbaGet<TeamSimple>(`/team/${teamKey}`);
-}
 
 export async function loadRun(runId: string): Promise<RunState | null> {
 	const state = await getJson<RunState>(`run:${runId}`);
@@ -47,7 +33,6 @@ type GuessResult = {
 	correct: boolean;
 	revealBanners: number;
 	round: PublicRound;
-	record?: RunRecord;
 };
 
 export async function guessRun(runId: string, playerId: string, dir: "higher" | "lower"): Promise<GuessResult> {
@@ -66,8 +51,8 @@ export async function guessRun(runId: string, playerId: string, dir: "higher" | 
 	if (!correct) {
 		const round: PublicRound = {
 			runId,
-			a: { ...(await getTeam(state.aKey)), banners: state.aBanners },
-			b: { ...(await getTeam(state.bKey)), banners: state.bBanners },
+			a: { ...getTeamSummary(state.aKey), banners: state.aBanners },
+			b: { ...getTeamSummary(state.bKey), banners: state.bBanners },
 			streak: state.streak,
 			maxStreak: state.maxStreak,
 		};
@@ -76,8 +61,7 @@ export async function guessRun(runId: string, playerId: string, dir: "higher" | 
 			isGameOver: true,
 			updatedAt: Date.now(),
 		});
-		const record = await submitRun(state.playerId, state.category, state.streak, state.arg);
-		return { correct, revealBanners, round, record };
+		return { correct, revealBanners, round };
 	}
 
 	// correct: b becomes a and we get a new b
@@ -86,7 +70,7 @@ export async function guessRun(runId: string, playerId: string, dir: "higher" | 
 
 	const nextAKey = state.bKey;
 
-	const nextATeam = await getTeam(nextAKey);
+	const nextATeam = getTeamSummary(nextAKey);
 	const nextABanners = getTeamBannerCount(state.category, nextAKey, state.arg);
 
 	const { bTeam, bBanners, keyB } = await (async () => {
@@ -95,7 +79,8 @@ export async function guessRun(runId: string, playerId: string, dir: "higher" | 
 		while (newB === nextAKey) {
 			newB = getRandomTeamKey(state.category, nextABanners, state.arg);
 		}
-		const [t, c] = await Promise.all([getTeam(newB), getTeamBannerCount(state.category, newB, state.arg)]);
+		const t = getTeamSummary(newB);
+		const c = getTeamBannerCount(state.category, newB, state.arg);
 		return { bTeam: t, bBanners: c, keyB: newB };
 	})();
 
@@ -121,4 +106,34 @@ export async function guessRun(runId: string, playerId: string, dir: "higher" | 
 	};
 
 	return { correct, revealBanners, round };
+}
+
+export async function publishRun(runId: string, playerId: string): Promise<{record: PublishResult; score: number}> {
+	const state = await loadRun(runId);
+	if (!state) {
+		throw new Error("Run not found/expired");
+	}
+	if (state.playerId !== playerId) {
+		throw new Error("Run does not belong to player");
+	}
+	if (!state.isGameOver) {
+		throw new Error("Run is not finished");
+	}
+	if (state.postedToLeaderboard) {
+		return {record: "already-posted", score: state.streak};
+	}
+
+	const profile = await getJson<PlayerProfile>(`player:${playerId}`);
+	if (!profile?.name?.trim()) {
+		return {record: "missing-profile", score: state.streak};
+	}
+
+	const record = await submitRun(state.playerId, state.category, state.streak, state.arg);
+	await setJson(`run:${runId}`, {
+		...state,
+		postedToLeaderboard: true,
+		updatedAt: Date.now(),
+	});
+
+	return {record, score: state.streak};
 }

@@ -4,6 +4,8 @@ import categories from "@/lib/categories";
 import {Guess} from "@/components/Game/Guess";
 import {Footer} from "@/components/Game/Footer";
 
+export const dynamic = "force-dynamic";
+
 type GamePageProps = {
 	params: Promise<{runId: string}>,
 };

@@ -11,6 +11,8 @@ export type RunState = {
 	category: string;
 	arg?: string;
 	isGameOver: boolean;
+	postedToLeaderboard?: boolean;
 };
 
 export type RunRecord = 'none'|'personal'|'global';
+export type PublishResult = RunRecord|'missing-profile'|'already-posted';

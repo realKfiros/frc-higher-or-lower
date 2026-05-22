@@ -8,17 +8,21 @@ client.on("error", (err) => {
 	console.error("Redis error", err);
 });
 
-if (!client.isOpen) {
-	await client.connect();
+async function ensureConnected() {
+	if (!client.isOpen) {
+		await client.connect();
+	}
 }
 
 // ---------- Sorted Sets ----------
 
 export async function zadd(key: string, score: number, member: string) {
+	await ensureConnected();
 	return client.zAdd(key, [{ score, value: member }]);
 }
 
 export async function zrevrangeWithScores(key: string, start: number, stop: number) {
+	await ensureConnected();
 	const res = await client.zRangeWithScores(key, start, stop, { REV: true });
 	// מחזירים בפורמט כמו Upstash: [member, score, member, score...]
 	const flat: Array<string | number> = [];
@@ -29,11 +33,13 @@ export async function zrevrangeWithScores(key: string, start: number, stop: numb
 }
 
 export async function zrevrank(key: string, member: string) {
+	await ensureConnected();
 	const rank = await client.zRevRank(key, member);
 	return { result: rank };
 }
 
 export async function zscore(key: string, member: string) {
+	await ensureConnected();
 	const score = await client.zScore(key, member);
 	return { result: score };
 }
@@ -41,11 +47,13 @@ export async function zscore(key: string, member: string) {
 // ---------- KV JSON ----------
 
 export async function setJson(key: string, value: unknown) {
+	await ensureConnected();
 	await client.set(key, JSON.stringify(value));
 	return { result: "OK" };
 }
 
 export async function getJson<T>(key: string): Promise<T | null> {
+	await ensureConnected();
 	const raw = await client.get(key);
 	if (!raw) return null;
 	try {

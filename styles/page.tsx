@@ -3,10 +3,10 @@
 import styled from "styled-components";
 
 export const Page = styled.main`
-	max-width: 980px;
+	max-width: 1040px;
 	margin: 0 auto;
-	padding: 22px 16px 40px;
-	background: #fafafa;
+	padding: 28px 16px 44px;
+	color: #18202c;
 	min-height: 100vh;
 `;
 
@@ -16,14 +16,17 @@ export const Header = styled.div`
 	gap: 12px;
 	align-items: center;
 	margin-bottom: 16px;
+	flex-wrap: wrap;
 `;
 
 export const Title = styled.h1`
-	font-size: 18px;
+	font-size: 28px;
+	line-height: 1.05;
 	margin: 0;
 `;
 
 export const Subtitle = styled.div`
 	font-size: 16px;
 	font-weight: 550;
+	color: #4b5563;
 `;
