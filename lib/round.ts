@@ -12,11 +12,11 @@ type Round = {
 	keyB: string;
 };
 
-export const getRound = async (category: string, keyA: string, arg?: string): Promise<Round> => {
+export const getRound = async (category: string, keyA: string, arg?: string, avoidKeys: string[] = [], streak = 0): Promise<Round> => {
 	const bannersA = getTeamBannerCount(category, keyA as string, arg);
-	let keyB = getRandomTeamKey(category, bannersA, arg);
+	let keyB = getRandomTeamKey(category, bannersA, arg, {avoidKeys: [keyA, ...avoidKeys], streak});
 	if (keyB === keyA) {
-		return getRound(category, keyA, arg);
+		return getRound(category, keyA, arg, avoidKeys, streak);
 	}
 	const aTeam = getTeamSummary(keyA);
 	const bTeam = getTeamSummary(keyB);

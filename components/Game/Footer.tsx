@@ -6,6 +6,7 @@ import {useRouter} from "next/navigation";
 
 type FooterProps = {
 	category: string;
+	arg?: string;
 	isGameOver: boolean;
 };
 
@@ -36,13 +37,13 @@ const SmallBtn = styled.button`
 	}
 `;
 
-export const Footer = ({category, isGameOver}: FooterProps) => {
+export const Footer = ({category, arg, isGameOver}: FooterProps) => {
 	const resetGame = useStartGame();
 	const router = useRouter();
 
 	return (
 		<FooterRow>
-			<SmallBtn onClick={() => resetGame(category)}>
+			<SmallBtn onClick={() => resetGame(category, arg)}>
 				{isGameOver ? "Restart" : "New run"}
 			</SmallBtn>
 			<SmallBtn onClick={() => router.push('/')}>

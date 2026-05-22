@@ -75,9 +75,10 @@ export async function guessRun(runId: string, playerId: string, dir: "higher" | 
 
 	const { bTeam, bBanners, keyB } = await (async () => {
 		// new opponent
-		let newB = getRandomTeamKey(state.category, nextABanners, state.arg);
+		const recentKeys = [state.aKey, state.bKey, ...(state.recentKeys ?? [])];
+		let newB = getRandomTeamKey(state.category, nextABanners, state.arg, {avoidKeys: [nextAKey, ...recentKeys], streak: nextStreak});
 		while (newB === nextAKey) {
-			newB = getRandomTeamKey(state.category, nextABanners, state.arg);
+			newB = getRandomTeamKey(state.category, nextABanners, state.arg, {avoidKeys: recentKeys, streak: nextStreak});
 		}
 		const t = getTeamSummary(newB);
 		const c = getTeamBannerCount(state.category, newB, state.arg);
@@ -93,6 +94,9 @@ export async function guessRun(runId: string, playerId: string, dir: "higher" | 
 		aBanners: nextABanners,
 		bBanners,
 		updatedAt: Date.now(),
+		recentKeys: [nextAKey, keyB, state.aKey, state.bKey, ...(state.recentKeys ?? [])].filter(
+			(key, index, keys) => keys.indexOf(key) === index,
+		).slice(0, 12),
 	};
 
 	await setJson(`run:${runId}`, nextState);

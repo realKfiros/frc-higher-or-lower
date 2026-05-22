@@ -37,6 +37,7 @@ export const createRun = async (playerId: string, category: string, arg?: string
 		arg,
 		updatedAt: Date.now(),
 		isGameOver: false,
+		recentKeys: [keyA, keyB],
 	};
 
 	await setJson(`run:${runId}`, state);

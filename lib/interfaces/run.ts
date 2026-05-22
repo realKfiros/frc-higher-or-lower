@@ -12,6 +12,7 @@ export type RunState = {
 	arg?: string;
 	isGameOver: boolean;
 	postedToLeaderboard?: boolean;
+	recentKeys?: string[];
 };
 
 export type RunRecord = 'none'|'personal'|'global';
