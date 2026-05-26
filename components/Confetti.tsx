@@ -42,10 +42,11 @@ export const Confetti = observer(() =>
 			scalar: 10,
 			spread: 300,
 			gravity: 2,
-			shapes: [canvasConfetti.shapeFromText({text, scalar: 10})],
 			origin: {
 				y: -.1
 			},
+			...options,
+			shapes: [canvasConfetti.shapeFromText({text, scalar: 10})],
 		})
 	}
 

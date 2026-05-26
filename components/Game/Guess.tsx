@@ -3,7 +3,7 @@
 import {TeamColors, TeamRound} from "@/lib/interfaces/game";
 import styled from "styled-components";
 import TeamCard from "@/components/TeamCard";
-import {useEffect, useState} from "react";
+import {useEffect, useRef, useState} from "react";
 import Controls from "@/components/Controls";
 import {getOrCreatePlayerId} from "@/lib/localProfile";
 import type {PublicRound} from "@/lib/run";
@@ -13,6 +13,7 @@ import {ConfettiPreset} from "@/lib/interfaces/confetti_shoot";
 import {Stats} from "@/components/Game/Stats";
 import {profileStore} from "@/stores/profileStore";
 import {TeamSimple} from "@/lib/interfaces/tba";
+import {hasBeeConfettiTeam} from "@/lib/beeConfettiTeams";
 
 type GuessProps = {
 	a: TeamRound;
@@ -134,10 +135,33 @@ export const Guess = ({a, b, isGameOver, streak, maxStreak, category, arg, runId
 	const [messageTone, setMessageTone] = useState<"good" | "bad" | "neutral">("neutral");
 	const [postLoading, setPostLoading] = useState(false);
 	const [posted, setPosted] = useState(!!postedToLeaderboard);
+	const lastBeeConfettiRound = useRef<string | null>(null);
 
 	useEffect(() => {
 		setPlayerId(getOrCreatePlayerId());
 	}, []);
+
+	useEffect(() => {
+		const roundKey = `${teamA?.team_number ?? ""}:${teamB?.team_number ?? ""}`;
+		if (lastBeeConfettiRound.current === roundKey || !hasBeeConfettiTeam([teamA?.team_number, teamB?.team_number])) {
+			return;
+		}
+
+		lastBeeConfettiRound.current = roundKey;
+		confettiStore.shoot({
+			preset: ConfettiPreset.Custom,
+			text: "🐝",
+			options: {
+				particleCount: 80,
+				startVelocity: 14,
+				scalar: 1.8,
+				ticks: 260,
+				gravity: .55,
+				spread: 160,
+				origin: {y: -.05},
+			},
+		});
+	}, [teamA?.team_number, teamB?.team_number]);
 
 	useEffect(() => {
 		const teamNumbers = [teamA?.team_number, teamB?.team_number]
